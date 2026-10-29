@@ -303,6 +303,9 @@ details[open] summary{margin-bottom:12px}
 .bk{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .mcard ol{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:.5cqw;font-size:1.35cqw;line-height:1.4;color:var(--soft)}
 .mer-tab{display:flex;flex-direction:column;gap:.6cqw}.mer-row{display:grid;grid-template-columns:1fr 1.4fr 1.6fr;gap:1.2cqw;align-items:baseline;background:var(--s2);border-radius:.6cqw;padding:.9cqw 1.4cqw;font-size:1.7cqw}.mer-row b{font-weight:600}.mer-row span{color:var(--accent)}.mer-row em{font-style:normal;color:var(--soft);font-size:.85em}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}.fbox{background:var(--s2);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}.fbox b{font-weight:600}
+.saveerr{position:fixed;left:50%;transform:translateX(-50%);top:12px;z-index:60;background:var(--bad);color:#160806;padding:10px 14px;border-radius:8px;font-size:15px;display:flex;gap:10px;align-items:center;max-width:92vw}.saveerr .btn{background:#160806;color:#fff;border:0}
+.fsb{opacity:.7}:fullscreen .fsb{opacity:.35}
 .live{display:none}.ph-title{display:none}
 @media (min-width:1100px){
   .prod{max-width:none;margin:0;padding:0 24px 32px 228px;display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,32vw);grid-template-rows:auto 1fr;column-gap:24px;align-items:start}
@@ -499,9 +502,9 @@ var PROGRAM={
    p:"7 grilles des camarades imprimées (onglet Kit).",
    s:["Distribue les grilles et explique-les : 4 critères de 1 à 5, on ne se note pas soi-même."]}),
   I("note",45,"Projections","Pitch d'une minute, animatique de 45 secondes, une minute pour remplir sa grille.","Final noté",{
-   s:["Le Joker choisit son ordre de passage, puis les autres.","Pour chaque élève : « Chrono 1 min » pour le pitch, puis l'animatique depuis Classroom, puis une minute pour remplir les grilles.","Note ta grille ci-dessous (4 critères) pendant ou juste après chaque film."],t:["pitch"],r:"f"}),
-  I("info",0,"Coup de cœur","Chacun désigne son coup de cœur, pas le sien.","",{s:["Ramasse les grilles."]}),
-  I("info",0,"Délibération","Le producteur délibère.","",{s:["Onglet Notes : saisis les fiches des camarades, puis choisis les prix."]}),
+   s:["Le Joker choisit son ordre de passage, puis les autres.","Pour chaque élève : « Chrono 1 min » pour le pitch, puis l'animatique depuis Classroom, puis une minute pour remplir les grilles.","Note ta grille ci-dessous pendant ou juste après chaque film : 4 critères de 0 à 5 par élève (lisibilité, audace, langage ciné, pitch)."],t:["pitch"],r:"f"}),
+  I("info",0,"Coup de cœur","Chacun désigne son coup de cœur, pas le sien.","",{s:["Ramasse les grilles des camarades.","Saisis chaque grille ci-dessous : qui note, le film noté, les 4 critères et le coup de cœur. Le compteur montre combien de fiches chaque film a reçues."],t:["fiches"]}),
+  I("info",0,"Délibération","Le producteur délibère.","",{s:["Termine la saisie des grilles des camarades ci-dessous si besoin.","Vérifie les notes dans l'onglet Notes, puis choisis les prix."],t:["fiches"]}),
   I("info",0,"Cérémonie des prix","Public, producteur, audace, progression.","",{s:["Choisis un prix à la fois dans l'onglet Écran : il se révèle en grand."],a:{mode:"palmares"}}),
   I("info",0,"Bilan","Ce que j'ai osé cette semaine. Fin des contrats.","",{s:["Tour de table : une chose que chacun a osée cette semaine.","Rends les contrats signés lundi, et le diplôme si tu l'as imprimé."]})]
 };
@@ -697,7 +700,7 @@ var FLASHES=[
 
 /* =================== ÉTAT =================== */
 var S=null, db=null, assets=null, downloads=null, isEditor=false, ready=false, dbMissing=false;
-var G={notes:{},fiches:[],bk:{}};
+var G={notes:{},fiches:[],bk:{}},lastFrom=null;
 var lastBk=0;
 function stamp(){var d=new Date(),z=function(n){return String(n).padStart(2,"0")};return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate())}
 function backup(id){if(!db||!isEditor||!S)return Promise.resolve();lastBk=Date.now();var body={at:Date.now(),state:JSON.parse(JSON.stringify(S)),notes:JSON.parse(JSON.stringify(G.notes||{})),fiches:G.fiches.map(function(x){var y=JSON.parse(JSON.stringify(x));delete y._id;return y})};return db.doc("backups/"+(id||("jour-"+stamp()))).set(body).catch(function(){})}
@@ -745,7 +748,7 @@ function tcLab(tp){return tp.cls==="done"?'<b>Coupez !</b>':S.timer.running?'Chr
 var app=document.getElementById("app");
 function projTop(){
   var th=THEMES[S.day-1][S.slot==="matin"?0:1];
-  return '<header class="p-top"><div class="p-brand"><span class="slate" aria-hidden="true"></span>Storyboard Quest</div><span>'+DSHORT[S.day-1]+' · '+(S.slot==="matin"?"Matin":"Après-midi")+' · <b>'+esc(th)+'</b></span><span class="sp"></span><span id="clock" class="mono"></span>'+(isEditor?'<button class="quit" type="button" data-act="quit">◀ Mon espace</button>':'')+'</header>';
+  return '<header class="p-top"><div class="p-brand"><span class="slate" aria-hidden="true"></span>Storyboard Quest</div><span>'+DSHORT[S.day-1]+' · '+(S.slot==="matin"?"Matin":"Après-midi")+' · <b>'+esc(th)+'</b></span><span class="sp"></span><span id="clock" class="mono"></span><button class="quit fsb" type="button" data-act="fs">'+(document.fullscreenElement?'Quitter le plein écran':'Plein écran')+'</button>'+(isEditor?'<button class="quit" type="button" data-act="quit">◀ Mon espace</button>':'')+'</header>';
 }
 function rankCol(big){
   var R=ranked(),max=Math.max(1,R[0]?R[0].xp:1),h='';
@@ -955,6 +958,9 @@ function tool(t,it){
     if(L.length)h+='<div class="list">'+L.map(function(x){return '<div class="li"><span class="t">'+esc(x.s.name)+' · <b>'+esc(x.st[0])+'</b> <small>envoie son découpage à '+esc(x.to.name)+'</small></span></div>'}).join("")+'</div>';
     h+='</div>';
   }
+  else if(t==="fiches"){
+    h='<div class="tool">'+ficheForm()+'</div>';
+  }
   else if(t==="xp"){
     h='<div class="tool"><h3>Donner des XP</h3><div class="row-btns">'+[5,10,15].map(function(v){return '<button class="btn" type="button" data-act="xp-all" data-v="'+v+'">+'+v+' à tous</button>'}).join("")+'</div><div class="xpgrid">'+S.students.map(function(s){return '<div class="xprow"><span class="t">'+esc(s.name)+' <small class="mono">'+s.xp+'</small></span><span class="row-btns">'+[5,10].map(function(v){return '<button class="btn sm" type="button" data-act="xp" data-id="'+s.id+'" data-v="'+v+'">+'+v+'</button>'}).join("")+'</span></div>'}).join("")+'</div></div>';
   }
@@ -963,7 +969,7 @@ function tool(t,it){
 function starsPanel(r){
   if(!db)return '<div class="tool"><p class="hint">Les étoiles se notent dans l\'onglet Notes.</p></div>';
   var h='<div class="tool"><h3>'+(r==="f"?'Ta grille du final (0 à 5)':'Étoiles du '+RENDUS[r])+'</h3>';
-  if(r==="f"){S.students.forEach(function(s){var f=(G.notes[s.id]||{}).f||[];h+='<details class="nd" data-sid="'+s.id+'"'+(openN[s.id]?' open':'')+'><summary>'+esc(s.name)+'</summary><div class="crit">';CRITS.forEach(function(lb,i){h+='<span>'+lb+'</span>'+stars(s.id,"f",i,f[i])});h+='</div></details>'})}
+  if(r==="f"){h+='<p class="hint">4 critères de 0 à 5 par élève. Le détail des critères est dans l\'onglet Kit (grille du festival).</p><div class="fgrid">';S.students.forEach(function(s){var f=(G.notes[s.id]||{}).f||[];h+='<div class="fbox"><b>'+esc(s.name)+'</b><div class="crit">';CRITS.forEach(function(lb,i){h+='<span>'+lb+'</span>'+stars(s.id,"f",i,f[i])});h+='</div></div>'});h+='</div>'}
   else{h+='<p class="hint">Une étoile par point validé : rendu à l\'heure, format complet, lisible, brique du jour, audace.</p><div class="crit">';S.students.forEach(function(s){var rr=(G.notes[s.id]||{}).r||[];h+='<span>'+esc(s.name)+'</span>'+stars(s.id,"r",r,rr[r])});h+='</div>'}
   return h+'</div>';
 }
@@ -1042,21 +1048,26 @@ function fmt(x){return x==null?"—":(Math.round(x*100)/100).toFixed(2).replace(
 function stars(sid,kind,idx,val){var at=' data-act="star" data-id="'+sid+'" data-k="'+kind+'" data-i="'+idx+'"';var h='<div class="stars"><button class="zero'+(val===0?' on':'')+'" type="button" aria-label="0 étoile"'+at+' data-v="0">0</button>';for(var v=1;v<=5;v++)h+='<button class="star'+(val!=null&&v<=val?' on':'')+'" type="button" aria-label="'+v+' étoiles" data-act="star" data-id="'+sid+'" data-k="'+kind+'" data-i="'+idx+'" data-v="'+v+'">★</button>';return h+'<span class="sv mono">'+(val==null?'—':val+'/5')+'</span>'+(val!=null?'<button class="clr" type="button" aria-label="Effacer cette note"'+at+' data-v="x">✕</button>':'')+'</div>'}
 function tNotes(){
   if(!db)return '<section class="card"><h2>Notes</h2><p class="hint">Les notes ne sont pas disponibles ici. Utilise le tableur.</p></section>';
-  var h='<section class="card"><h2>Bilan</h2><div class="tw"><table class="gt"><thead><tr><th>Élève</th><th>Parcours /9</th><th>Final /9</th><th>XP /2</th><th>Note /20</th><th>♥</th></tr></thead><tbody>';
+  var h='<section class="card"><h2>Suivi des notes</h2><p class="hint">Tout se note depuis le conducteur : les étoiles à chaque rendu noté, ta grille du film final pendant les projections de vendredi, les grilles des camarades à la délibération. Ici, tu suis, tu ajustes à la main si besoin et tu exportes.</p></section><section class="card"><h2>Bilan</h2><div class="tw"><table class="gt"><thead><tr><th>Élève</th><th>Parcours /9</th><th>Final /9</th><th>XP /2</th><th>Note /20</th><th>♥</th></tr></thead><tbody>';
   S.students.forEach(function(s){var g=grades(s.id);h+='<tr><td>'+esc(s.name)+'</td><td>'+fmt(g.p9)+'</td><td>'+fmt(g.f9)+'</td><td>'+fmt(g.xpp)+'</td><td class="n">'+fmt(g.note)+'</td><td>'+g.cc+'</td></tr>'});
   h+='</tbody></table></div><div class="row-btns">'+(downloads?'<button class="btn" type="button" data-act="csv">Télécharger le tableau (CSV)</button>':'')+'<button class="btn ghost" type="button" data-act="copy">Copier pour Excel</button></div><p class="hint">Les notes ne sont visibles que par toi, jamais sur l\'écran élèves.</p></section>';
   S.students.forEach(function(s){
     var n=G.notes[s.id]||{},r=n.r||[],f=n.f||[],g=grades(s.id);
-    h+='<details class="nd" data-sid="'+s.id+'"'+(openN[s.id]?' open':'')+'><summary>'+esc(s.name)+' · '+fmt(g.note)+' / 20</summary><div class="list"><h3>Rendus (étoiles)</h3><div class="crit">';
+    h+='<details class="nd" data-sid="'+s.id+'"'+(openN[s.id]?' open':'')+'><summary>'+esc(s.name)+' · '+fmt(g.note)+' / 20</summary><div class="list"><h3>Rendus (étoiles, saisies dans le conducteur)</h3><div class="crit">';
     RENDUS.forEach(function(lb,i){h+='<span>'+lb+'</span>'+stars(s.id,"r",i,r[i])});
-    h+='</div><h3>Final : ta grille (0 à 5)</h3><div class="crit">';
+    h+='</div><h3>Film final : ta grille, de 0 à 5 (saisie vendredi, séquence Projections)</h3><div class="crit">';
     CRITS.forEach(function(lb,i){h+='<span>'+lb+'</span>'+stars(s.id,"f",i,f[i])});
     h+='</div><p class="hint">Camarades : '+g.n+' fiche'+(g.n>1?'s':'')+' reçue'+(g.n>1?'s':'')+' · moyenne '+fmt(g.pe)+' / 10</p><div class="row-btns"><button class="btn sm ghost '+(armed["clrn-"+s.id]?'armed':'danger')+'" type="button" data-act="clr-note" data-id="'+s.id+'">'+(armed["clrn-"+s.id]?'Confirmer : effacer les étoiles de '+esc(s.name):'Effacer ses étoiles')+'</button></div></div></details>';
   });
   h+='<section class="card"><h3>Remettre les notes à zéro</h3><p class="hint">Efface toutes les étoiles (rendus et grille finale) de tous les élèves. Les fiches des camarades restent.</p><button class="btn '+(armed.clrall?'armed':'danger')+'" type="button" data-act="clr-all">'+(armed.clrall?'Confirmer : effacer toutes les étoiles':'Effacer toutes les étoiles')+'</button></section>';
-  h+='<section class="card"><h3>Ajouter une fiche de camarade (vendredi)</h3><div class="grid2"><label class="field" for="fi-from">Qui note<select id="fi-from">'+S.students.map(function(s){return '<option value="'+s.id+'">'+esc(s.name)+'</option>'}).join("")+'</select></label><label class="field" for="fi-to">Le film de<select id="fi-to">'+S.students.map(function(s,i){return '<option value="'+s.id+'"'+(i===1?' selected':'')+'>'+esc(s.name)+'</option>'}).join("")+'</select></label></div><div class="crit">'+CRITS.map(function(lb,i){return '<span>'+lb+'</span><select class="sel" id="fi-c'+i+'" aria-label="'+lb+'"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>'}).join("")+'<span>Coup de cœur</span><select class="sel" id="fi-cc"><option value="0">Non</option><option value="1">Oui</option></select></div><button class="btn pri" type="button" data-act="add-fiche">Enregistrer la fiche</button>';
+  h+='<section class="card"><h3>Fiches des camarades reçues</h3><p class="hint">Elles se saisissent dans le conducteur, vendredi (séquences Coup de cœur et Délibération). Ici, tu peux en supprimer une erreur.</p>';
   if(G.fiches.length){h+='<div class="list">';G.fiches.slice().reverse().slice(0,40).forEach(function(x){var a=byId(x.from),b=byId(x.to);h+='<div class="li"><span class="t">'+esc(a?a.name:"?")+' → '+esc(b?b.name:"?")+' <small>'+(x.c||[]).join(" · ")+(x.cc?' · ♥':'')+(x.from===x.to?' · ignorée (soi-même)':'')+'</small></span><button class="btn sm ghost" type="button" data-act="rm-fiche" data-fid="'+x._id+'">✕</button></div>'});h+='</div>'}
   return h+'</section>';
+}
+function ficheForm(){var h='';  h+='<h3>Saisir une grille de camarade</h3><div class="grid2"><label class="field" for="fi-from">Qui note<select id="fi-from">'+S.students.map(function(s){return '<option value="'+s.id+'"'+(s.id===lastFrom?' selected':'')+'>'+esc(s.name)+'</option>'}).join("")+'</select></label><label class="field" for="fi-to">Le film de<select id="fi-to">'+S.students.map(function(s,i){return '<option value="'+s.id+'"'+(i===1?' selected':'')+'>'+esc(s.name)+'</option>'}).join("")+'</select></label></div><div class="crit">'+CRITS.map(function(lb,i){return '<span>'+lb+'</span><select class="sel" id="fi-c'+i+'" aria-label="'+lb+'"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>'}).join("")+'<span>Coup de cœur</span><select class="sel" id="fi-cc"><option value="0">Non</option><option value="1">Oui</option></select></div><button class="btn pri" type="button" data-act="add-fiche">Enregistrer la fiche</button>';
+  var cnt={};G.fiches.forEach(function(x){if(x.from!==x.to)cnt[x.to]=(cnt[x.to]||0)+1});
+  h+='<p class="hint">Fiches reçues : '+S.students.map(function(s){return esc(s.name)+' '+(cnt[s.id]||0)}).join(" · ")+' (chacun doit en avoir '+Math.max(0,S.students.length-1)+')</p>';
+  return h;
 }
 function tKit(){
   var h='<div class="kit">';
@@ -1098,8 +1109,9 @@ function save(){
   if(!db)return;
   if(saving){saveT=setTimeout(save,200);return}
   var body=JSON.parse(JSON.stringify(S));saving=true;
-  db.doc("live/state").set(body).then(function(){saving=false;if(JSON.stringify(S)===JSON.stringify(body)){dirty=false;setSync("ok")}if(Date.now()-lastBk>5*60000)backup();},function(e){saving=false;dirty=false;setSync("err");toast("Enregistrement impossible"+(e&&e.code?" ("+e.code+")":"")+". Réessaie.")});
+  db.doc("live/state").set(body).then(function(){saving=false;if(JSON.stringify(S)===JSON.stringify(body)){dirty=false;setSync("ok")}if(Date.now()-lastBk>5*60000)backup();},function(e){saving=false;dirty=false;setSync("err");saveErr(e)});
 }
+function saveErr(e){var o=document.getElementById("saveerr");if(!o){o=document.createElement("div");o.id="saveerr";o.className="saveerr";document.body.appendChild(o)}o.innerHTML='<b>Enregistrement impossible'+(e&&e.code?' ('+esc(e.code)+')':'')+'.</b> L\'écran élèves ne reçoit plus tes changements. <button class="btn sm" type="button" onclick="location.reload()">Recharger la page</button>'}
 function toast(t){var o=document.createElement("div");o.className="toast";o.textContent=t;document.body.appendChild(o);setTimeout(function(){o.remove()},2500)}
 var noteQ={},openN={};
 var notePend={};
@@ -1121,6 +1133,7 @@ app.addEventListener("click",function(ev){
   var a=b.getAttribute("data-act"),id=b.getAttribute("data-id"),s=id&&byId(id),val=function(x){var e=document.getElementById(x);return e?e.value:""};
   switch(a){
    case"cast":ssSet("sq-screen","1");location.hash="projection";try{var de=document.documentElement;if(de.requestFullscreen)de.requestFullscreen().catch(function(){})}catch(e){}return;
+   case"fs":try{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().catch(function(){toast("Plein écran refusé par le navigateur")})}catch(e){}return;
    case"quit":ssSet("sq-screen","0");try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}if(location.hash)location.hash="producteur";render();return;
    case"next":var nn=nextOf();if(!nn)return;S.day=nn.d;S.slot=nn.s;launch(PROGRAM[nn.d+"-"+nn.s][nn.i],nn.d+"-"+nn.s+"-"+nn.i);break;
    case"launch":var i=+b.getAttribute("data-i");launch(PROGRAM[S.day+"-"+S.slot][i],S.day+"-"+S.slot+"-"+i);break;
@@ -1164,7 +1177,7 @@ app.addEventListener("click",function(ev){
    case"star":var sid=id,kk=b.getAttribute("data-k"),ii=+b.getAttribute("data-i"),rv=b.getAttribute("data-v");G.notes[sid]=G.notes[sid]||{r:[],f:[]};var arr=G.notes[sid][kk]=(G.notes[sid][kk]||[]).slice();while(arr.length<=ii)arr.push(null);var vv=rv==="x"?null:+rv;arr[ii]=vv;openN[sid]=1;saveNote(sid);render();return;
    case"clr-note":if(!armed["clrn-"+id]){arm("clrn-"+id);return}delete armed["clrn-"+id];G.notes[id]={r:[],f:[]};openN[id]=1;saveNote(id);render();toast("Étoiles effacées");return;
    case"clr-all":if(!armed.clrall){arm("clrall");return}delete armed.clrall;S.students.forEach(function(x){G.notes[x.id]={r:[],f:[]};saveNote(x.id)});render();toast("Toutes les étoiles sont effacées");return;
-   case"add-fiche":var fr=val("fi-from"),to=val("fi-to");if(fr===to){toast("On ne se note pas soi-même.");return}if([0,1,2,3].some(function(i){return !val("fi-c"+i)})){toast("Choisis une note pour les 4 critères.");return}db.collection("fiches").add({from:fr,to:to,c:[0,1,2,3].map(function(i){return +val("fi-c"+i)}),cc:val("fi-cc")==="1",at:Date.now()}).then(function(){toast("Fiche enregistrée")},function(){toast("Fiche non enregistrée, réessaie.")});return;
+   case"add-fiche":var fr=val("fi-from"),to=val("fi-to");lastFrom=fr;if(fr===to){toast("On ne se note pas soi-même.");return}if([0,1,2,3].some(function(i){return !val("fi-c"+i)})){toast("Choisis une note pour les 4 critères.");return}db.collection("fiches").add({from:fr,to:to,c:[0,1,2,3].map(function(i){return +val("fi-c"+i)}),cc:val("fi-cc")==="1",at:Date.now()}).then(function(){toast("Fiche enregistrée")},function(){toast("Fiche non enregistrée, réessaie.")});return;
    case"rm-fiche":db.doc("fiches/"+b.getAttribute("data-fid")).delete().catch(function(){toast("Suppression impossible")});return;
    case"bk-now":backup("manuel-"+Date.now()).then(function(){toast("Sauvegarde faite")});return;
    case"bk-dl":var dump=JSON.stringify({at:new Date().toISOString(),state:S,notes:G.notes,fiches:G.fiches},null,1);downloads.save({filename:"sauvegarde-storyboard-quest-"+stamp()+".json",data:dump}).then(function(){toast("Copie téléchargée")},function(e){if(!e||e.code!=="declined")toast("Téléchargement impossible")});return;
@@ -1192,6 +1205,7 @@ document.addEventListener("toggle",function(e){var d=e.target;if(d&&d.classList&
 document.addEventListener("toggle",function(e){if(e.target&&e.target.id==="dl")lsSet("sq-open-list",e.target.open?"1":"0")},true);
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&route()==="projection"&&isEditor){location.hash=""}});
 window.addEventListener("hashchange",function(){render()});
+document.addEventListener("fullscreenchange",function(){if(S&&view()!=="prod")render()});
 function csv(sep){
   var head=["Élève"].concat(RENDUS,["Parcours /9"],CRITS,["Formateur /10","Camarades /10","Final /9","XP","XP /2","Note /20","Coups de cœur"]);
   var rows=[head];S.students.forEach(function(s){var n=G.notes[s.id]||{},g=grades(s.id),r=n.r||[],f=n.f||[];rows.push([s.name].concat([0,1,2,3,4,5,6].map(function(i){return r[i]==null?"":r[i]}),[fmt(g.p9)],[0,1,2,3].map(function(i){return f[i]==null?"":f[i]}),[fmt(g.prof),fmt(g.pe),fmt(g.f9),s.xp,fmt(g.xpp),fmt(g.note),g.cc]))});
@@ -1229,7 +1243,7 @@ function start(){
       if(isEditor){
         db.collection("notes").onSnapshot(function(qs){var o={};qs.docs.forEach(function(d){o[d.id]=d.data()});Object.keys(notePend).forEach(function(k){if(o[k]&&sameNote(o[k],notePend[k].v)&&notePend[k].t&&Date.now()-notePend[k].t>3000)delete notePend[k];else o[k]=notePend[k].v});G.notes=o;if(tab==="notes"&&view()==="prod")render()},function(){});
         db.collection("backups").onSnapshot(function(qs){var o={};qs.docs.forEach(function(d){o[d.id]=d.data()});G.bk=o;if(tab==="eleves"&&view()==="prod")render()},function(){});
-        db.collection("fiches").onSnapshot(function(qs){G.fiches=qs.docs.map(function(d){var x=d.data();x._id=d.id;return x}).sort(function(a,b){return (a.at||0)-(b.at||0)});if(tab==="notes"&&view()==="prod")render()},function(){});
+        db.collection("fiches").onSnapshot(function(qs){G.fiches=qs.docs.map(function(d){var x=d.data();x._id=d.id;return x}).sort(function(a,b){return (a.at||0)-(b.at||0)});if((tab==="notes"||tab==="cond")&&view()==="prod")render()},function(){});
       }
     });
   }).catch(function(){poster("Storyboard Quest","Connexion au studio impossible pour le moment. Recharge la page.")});
