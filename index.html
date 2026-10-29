@@ -375,7 +375,7 @@ window.claude={use:function(n){
 var DATES=["Lundi 2 novembre","Mardi 3 novembre","Jeudi 5 novembre","Vendredi 6 novembre"];
 var DSHORT=["Lun. 2 nov.","Mar. 3 nov.","Jeu. 5 nov.","Ven. 6 nov."];
 var THEMES=[["Raconter en images","Le cadre"],["Les règles de continuité","Les cases se répondent"],["Rythme, son et animatique","Lancement du projet"],["Production","Festival"]];
-/* Types : info (tu parles, pas de chrono) · defi (chrono + XP) · atelier (chrono, ni XP ni note) · note (chrono, rendu noté) · pause
+/* Types : info (tu parles, pas de chrono) · defi (chrono + XP) · atelier (chrono, temps de travail) · note (chrono, rendu noté) · pause
    I(type, minutes, titre, consigne affichée aux élèves, XP affichés, fiche du producteur)
    fiche : p = à préparer · s = étapes · t = outils dans le conducteur · a = ce que l'écran affiche · r = rendu noté (0 à 5, ou "f" pour le final) */
 function I(type,m,t,d,x,f){f=f||{};return {type:type,m:m,t:t,d:d||"",x:x||"",p:f.p||"",s:f.s||[],tools:f.t||[],a:f.a||null,r:f.r==null?null:f.r,k:!!f.k,v:!!f.v,sc:f.sc||null}}
@@ -388,9 +388,9 @@ var PROGRAM={
   I("info",0,"Contrat d'embauche","Lisez le contrat, remplissez-le et signez-le.","5 XP à la signature",{
    p:"7 contrats imprimés (onglet Kit, ou le doc Kit).",
    s:["Le contrat s'affiche à l'écran.","Distribue les contrats. Ils remplissent leur nom et signent, tu signes aussi.","Clique « +5 à tous » ci-dessous.","Garde les contrats : tu les rends vendredi au bilan (« fin des contrats »)."],t:["xp"],a:{mode:"contrat"}}),
-  I("defi",20,"Se présenter en 3 cases","Trois cases, sans texte : d'où je viens, ce que j'aime, ce que je rêve de filmer. On juge la clarté, pas le coup de crayon.","10 XP à chacun · non noté",{
+  I("defi",20,"Se présenter en 3 cases","Trois cases, sans texte : d'où je viens, ce que j'aime, ce que je rêve de filmer. On juge la clarté, pas le coup de crayon.","10 XP à chacun",{
    p:"La planche vierge 3 cases (PDF) ou une feuille A4 par élève, des crayons.",
-   s:["Distribue les feuilles et lance le chrono : 12 minutes de dessin.","Tour de table : chacun montre sa planche, les autres disent ce qu'ils comprennent AVANT qu'il explique.","Fais remarquer quand la salle a compris sans explication : c'est la règle d'or du studio.","Clique « +10 à tous ».","À la pause, chacun photographie sa planche et la dépose dans Classroom, devoir « Point de départ ». Ce n'est pas noté : tu la compareras au film final pour le prix de la meilleure progression."],t:["xp"]}),
+   s:["Distribue les feuilles et lance le chrono : 12 minutes de dessin.","Tour de table : chacun montre sa planche, les autres disent ce qu'ils comprennent AVANT qu'il explique.","Fais remarquer quand la salle a compris sans explication : c'est la règle d'or du studio.","Clique « +10 à tous ».","À la pause, chacun photographie sa planche et la dépose dans Classroom, devoir « Point de départ ». Tu la compareras au film final pour le prix de la meilleure progression."],t:["xp"]}),
   I("info",0,"Flash 1 : un storyboard, c'est quoi ?","À quoi sert un storyboard, et comment on le lit.","",{
    p:"Facultatif : une paire d'exemples (une planche, puis l'image du film) dans l'onglet Écran, mode Exemples. Sans exemple, la diapo correspondante est sautée.",
    s:["Fais défiler les diapos avec les flèches ci-dessous.","Le message à faire passer : un storyboard, c'est le film dessiné avant le tournage ; il est réussi s'il se lit sans son auteur."],t:["slides"],a:{mode:"flash",k:0}}),
@@ -932,7 +932,7 @@ function tCond(){
   if(th)h+='<section class="card tools">'+th+'</section>';
   h+='<details'+(lsGet("sq-open-list")==="1"?' open':'')+' id="dl"><summary>Toute la demi-journée</summary><div class="grid2" style="margin-bottom:10px"><select class="sel" id="r-day" aria-label="Jour">'+DATES.map(function(d,i){return '<option value="'+(i+1)+'"'+(i+1===S.day?' selected':'')+'>'+d+'</option>'}).join("")+'</select><select class="sel" id="r-slot" aria-label="Créneau"><option value="matin"'+(S.slot==="matin"?' selected':'')+'>Matin</option><option value="aprem"'+(S.slot==="aprem"?' selected':'')+'>Après-midi</option></select></div><div class="list">';
   (PROGRAM[S.day+"-"+S.slot]||[]).forEach(function(x,i){var cur=C&&C.key===S.day+"-"+S.slot+"-"+i;h+='<div class="li'+(cur?' cur':'')+'"><span class="t">'+esc(x.t)+(timed(x)?' <small>'+x.m+' min</small>':'')+'</span>'+badge(x)+'<button class="btn sm'+(cur?'':' pri')+'" type="button" data-act="launch" data-i="'+i+'">'+(cur?'Relancer':'Lancer')+'</button></div>'});
-  h+='</div><p class="hint">Badges : Noté = rendu qui compte dans la note sur 20 · Défi = chrono et XP · Atelier = chrono, sans XP ni note · sans badge = tu présentes, pas de chrono.</p></details>';
+  h+='</div><p class="hint">Badges : Noté = rendu noté sur 5 étoiles · Défi = chrono, XP à gagner (les XP comptent pour 2 points sur 20) · Atelier = temps de travail chronométré · sans badge = tu présentes, pas de chrono.</p></details>';
   h+='<details><summary>Séquence improvisée</summary><div class="list"><label class="field" for="c-t">Titre<input id="c-t" placeholder="Ex. Le plan impossible"></label><label class="field" for="c-d">Consigne<input id="c-d"></label><div class="grid2"><label class="field" for="c-m">Minutes<input id="c-m" type="number" min="1" value="10"></label><label class="field" for="c-x">À gagner<input id="c-x" placeholder="20 XP"></label></div><button class="btn pri" type="button" data-act="launch-custom">Lancer</button></div></details>';
   return h;
 }
