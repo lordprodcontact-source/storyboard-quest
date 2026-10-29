@@ -1,0 +1,1238 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Storyboard Quest · Écran élèves</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600&family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout : deux faces d'un même studio. Écran élèves = une salle de projection sobre (scène à gauche, feuille de classement à droite, plein cadre pour les flashs). Producteur = une télécommande au pouce, onglets en bas. */
+:root{
+  --bg:#0D0F13; --s1:#14171D; --s2:#1B1F26; --s3:#232831; --hair:#272C35;
+  --text:#ECE7DD; --soft:#C6C0B4; --muted:#8A919C;
+  --accent:#EBA53D; --accent-ink:#1E1406; --good:#8FBF8A; --bad:#E0684F;
+  --paper:#F4F0E7; --pen:#1B1D22;
+  --c-coup:#7FB7C9; --c-doublure:#8FBF8A; --c-director:#E3876B; --c-associe:#C2A7E3; --c-joker:#EBA53D;
+  --display:"Big Shoulders Display", "Arial Narrow", sans-serif;
+  --sans:"Archivo", "Helvetica Neue", Arial, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme:dark;
+}
+html,body{background:var(--bg);color:var(--text);height:100%}
+body{font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--sans);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.chip{display:inline-block;font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:3px;color:#14110B;border:0}
+.chip.joker{background:var(--c-joker)}.chip.coup{background:var(--c-coup)}.chip.doublure{background:var(--c-doublure)}.chip.director{background:var(--c-director)}.chip.associe{background:var(--c-associe)}
+
+/* ---------- Affiche (chargement, hors-ligne) ---------- */
+.poster{min-height:100%;display:grid;place-items:center;text-align:center;padding:32px max(16px,env(safe-area-inset-left,0px))}
+.poster h1{font-family:var(--display);font-weight:600;font-size:clamp(44px,8vw,96px);line-height:1.1;margin:14px 0 10px}
+.poster p{color:var(--soft);max-width:44ch;margin:0 auto 18px}
+.slate{display:inline-block;width:34px;height:24px;border-radius:3px;border:2px solid var(--text);background:repeating-linear-gradient(135deg,var(--text) 0 5px,transparent 5px 10px)}
+
+/* ---------- ÉCRAN ÉLÈVES ---------- */
+.proj{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr);gap:1.4vw;padding:1.6vw max(2.2vw,env(safe-area-inset-right,0px)) 1.8vw max(2.2vw,env(safe-area-inset-left,0px));overflow:hidden}
+.p-top{display:flex;align-items:center;gap:1.4vw;font-family:var(--sans);font-size:max(12px,.85vw);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.p-brand{display:flex;align-items:center;gap:.8vw;color:var(--text);font-family:var(--display);font-weight:600;font-size:max(18px,1.7vw);letter-spacing:0;text-transform:none}
+.p-brand .slate{width:max(22px,1.8vw);height:max(16px,1.3vw)}
+.p-top .sp{flex:1}
+.p-top b{color:var(--accent);font-weight:600}
+.p-main{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);gap:1.8vw;min-height:0}
+.p-main.full{grid-template-columns:minmax(0,1fr)}
+.stage{position:relative;background:var(--s1);border-radius:10px;padding:2.4vw 2.6vw;display:flex;flex-direction:column;gap:1.2vw;min-height:0;overflow:hidden}
+.stage::before,.stage::after{content:"";position:absolute;width:1.6vw;height:1.6vw;border:2px solid var(--accent);opacity:.9}
+.stage::before{top:1vw;left:1vw;border-right:0;border-bottom:0}
+.stage::after{bottom:1vw;right:1vw;border-left:0;border-top:0}
+.seq-eyebrow{font-family:var(--sans);font-size:max(12px,.9vw);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.seq-eyebrow b{color:var(--accent)}
+.seq-title{font-family:var(--display);font-weight:600;font-size:clamp(40px,5.4vw,124px);line-height:1.1;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.seq-title.rendu{color:var(--accent)}
+.seq-desc{font-size:clamp(16px,1.55vw,32px);color:var(--soft);max-width:46ch;margin:0;line-height:1.35}
+.seq-xp{align-self:flex-start;font-family:var(--sans);font-size:max(12px,1vw);font-weight:600;border:1px solid var(--accent);color:var(--accent);padding:.35vw .9vw;border-radius:999px}
+.seq-fill{flex:1;min-height:0}
+.draws{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1vw}
+.draws.one{grid-template-columns:minmax(0,1fr)}
+.dcard{background:var(--paper);color:var(--pen);border-radius:8px;padding:1vw 1.2vw 1.2vw;display:flex;flex-direction:column;gap:.4vw}
+.dcard span{font-family:var(--sans);font-size:max(12px,.7vw);letter-spacing:.08em;text-transform:uppercase;color:#6E685C}
+.dcard strong{font-family:var(--display);font-weight:600;font-size:clamp(22px,2.4vw,56px);line-height:1.1}
+.flip .dcard{animation:flip .7s cubic-bezier(.2,.8,.2,1) both}
+.flip .dcard:nth-child(2){animation-delay:.35s}.flip .dcard:nth-child(3){animation-delay:.7s}
+@keyframes flip{from{transform:rotateY(90deg);opacity:0}to{transform:none;opacity:1}}
+.pairs{display:flex;flex-wrap:wrap;gap:.6vw}
+.pair{font-size:max(13px,1.05vw);padding:.4vw 1vw;border-radius:999px;background:var(--s3);color:var(--soft)}
+.pair i{font-style:normal;color:var(--accent);margin:0 .4vw}
+.pair.guest{background:transparent;border:1px solid var(--accent);color:var(--accent)}
+.tc{display:flex;align-items:flex-end;justify-content:space-between;gap:1vw;border-top:1px solid var(--hair);padding-top:1vw}
+.tc-num{font-family:var(--mono);font-weight:600;font-size:clamp(48px,7.4vw,170px);line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:0}
+.tc-num.idle{color:var(--muted)}.tc-num.low{color:var(--accent)}.tc-num.done{color:var(--bad)}
+.tc-lab{text-align:right;font-family:var(--sans);font-size:max(12px,.85vw);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tc-lab b{display:block;font-family:var(--display);font-weight:600;text-transform:none;letter-spacing:0;font-size:clamp(28px,3vw,64px);color:var(--bad);line-height:1.1}
+.tc-bar{height:3px;background:var(--s3);border-radius:2px;overflow:hidden}
+.tc-bar i{display:block;height:100%;background:var(--accent);transition:width 1s linear}
+
+.rank-col{display:flex;flex-direction:column;gap:1vw;min-height:0}
+.rank-head{display:flex;justify-content:space-between;align-items:baseline}
+.rank-head h2{font-family:var(--display);font-weight:600;font-size:clamp(24px,2.3vw,52px);margin:0;line-height:1.1}
+.closed{font-family:var(--sans);font-size:max(12px,.7vw);letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink);background:var(--accent);padding:.2vw .6vw;border-radius:3px}
+.board{display:flex;flex-direction:column;gap:.5vw;position:relative;min-height:0}
+.row{display:grid;grid-template-columns:2.6vw minmax(0,1fr) auto;align-items:center;gap:1vw;padding:.75vw 1vw;border-radius:8px;background:var(--s1);position:relative;transition:transform .9s cubic-bezier(.2,.8,.2,1)}
+.row.lead{background:linear-gradient(90deg,rgba(235,165,61,.16),rgba(235,165,61,.03));box-shadow:inset 0 0 0 1px rgba(235,165,61,.55)}
+.rk{font-family:var(--display);font-weight:600;font-size:clamp(22px,2.2vw,50px);line-height:1.1;color:var(--muted);text-align:center}
+.row.lead .rk{color:var(--accent)}
+.who{min-width:0;display:flex;flex-direction:column;gap:.4vw}
+.nm{font-weight:600;font-size:clamp(15px,1.35vw,30px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;gap:.6vw;align-items:center}
+.bar{height:3px;background:var(--s3);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--soft);transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.row.lead .bar i{background:var(--accent)}
+.pts{font-family:var(--sans);font-weight:600;font-size:clamp(16px,1.6vw,36px);font-variant-numeric:tabular-nums;text-align:right}
+.pts small{font-size:.5em;color:var(--muted);margin-left:.2em}
+.delta{position:absolute;right:1vw;top:-.6vw;background:var(--accent);color:var(--accent-ink);font-family:var(--sans);font-weight:600;font-size:max(12px,.95vw);padding:.15vw .6vw;border-radius:999px;animation:pop 2.8s ease-out both}
+.delta.neg{background:var(--bad);color:#160806}
+@keyframes pop{0%{transform:translateY(8px) scale(.6);opacity:0}12%{transform:none;opacity:1}80%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}
+
+.full-area{display:grid;place-items:center;min-height:0;min-width:0}
+.slide{container-type:inline-size;width:min(100%,calc((100vh - 7vw) * 16 / 9));aspect-ratio:16/9;background:var(--s1);border-radius:10px;position:relative;overflow:hidden;display:flex;flex-direction:column;padding:4.6cqw 5.4cqw;gap:2.4cqw}
+.slide.accent{background:var(--accent);color:var(--accent-ink);justify-content:center}
+.s-eye{font-family:var(--sans);font-size:1.15cqw;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.slide.accent .s-eye{color:var(--accent-ink)}
+.s-h{font-family:var(--display);font-weight:600;font-size:4.6cqw;line-height:1.1;margin:0;letter-spacing:-.01em}
+.s-big{font-family:var(--display);font-weight:600;font-size:9cqw;line-height:1.1;margin:0}
+.s-lead{font-size:2cqw;color:var(--soft);margin:0;max-width:60ch}
+.slide.accent .s-lead{color:var(--accent-ink);font-weight:600}
+.s-grid{display:grid;gap:1.6cqw;flex:1;min-height:0;align-content:start}
+.s-card{background:var(--s2);border-radius:.8cqw;padding:2cqw;display:flex;flex-direction:column;gap:.8cqw}
+.s-card h3{margin:0;font-family:var(--display);font-weight:600;font-size:2.6cqw;line-height:1.05;color:var(--text)}
+.s-card .k{font-family:var(--sans);font-size:1cqw;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.s-card p{margin:0;font-size:1.45cqw;color:var(--soft);line-height:1.35}
+.s-fig{display:flex;flex-direction:column;gap:.7cqw;min-width:0}
+.s-fig svg{width:100%;height:auto;display:block;border-radius:.4cqw}
+.s-fig b{font-size:1.5cqw;font-weight:600}
+.s-fig span{font-size:1.2cqw;color:var(--muted)}
+.s-fig.ok b{color:var(--good)}.s-fig.ko b{color:var(--bad)}
+.s-bars{display:flex;flex-direction:column;gap:1cqw}
+.s-bars .lbl{font-family:var(--sans);font-size:1.05cqw;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.s-strip{display:flex;gap:.5cqw;height:3.6cqw}
+.s-strip i{display:block;border-radius:.4cqw;background:var(--paper)}
+.s-strip.fast i{background:var(--accent)}
+.s-time{display:flex;gap:.8cqw}
+.s-time > div{background:var(--paper);color:var(--pen);border-radius:.8cqw;padding:1.8cqw;display:flex;flex-direction:column;gap:.6cqw}
+.s-time > div.hot{background:var(--accent)}
+.s-time .k{font-family:var(--sans);font-size:1.05cqw;color:#6E685C}
+.s-time h3{margin:0;font-family:var(--display);font-weight:600;font-size:2.7cqw;line-height:1.1}
+.s-time p{margin:0;font-size:1.4cqw;color:#3A372F}
+.s-log{background:var(--accent);color:var(--accent-ink);border-radius:.8cqw;padding:2cqw}
+.s-log .k{font-family:var(--sans);font-size:1cqw;letter-spacing:.08em;text-transform:uppercase}
+.s-log p{margin:.6cqw 0 0;font-family:var(--display);font-weight:600;font-size:2.7cqw;line-height:1.1}
+.s-ph{flex:1;border:2px dashed var(--hair);border-radius:.8cqw;display:grid;place-items:center;color:var(--muted);font-size:1.6cqw;text-align:center;padding:2cqw}
+.s-pair{display:grid;grid-template-columns:1fr 1fr;gap:1.6cqw;flex:1;min-height:0}
+.s-pair figure{margin:0;display:flex;flex-direction:column;gap:.8cqw;min-height:0}
+.s-pair img{width:100%;flex:1;min-height:0;object-fit:contain;background:#000;border-radius:.6cqw}
+.s-pair figcaption{font-family:var(--sans);font-size:1.05cqw;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.slide-count{position:absolute;right:2.4cqw;bottom:1.8cqw;font-family:var(--sans);font-size:1cqw;color:var(--muted)}
+
+/* raccords piégés */
+.trap{width:100%;height:100%;display:flex;flex-direction:column;gap:1.2vw;min-height:0}
+.trap-head{display:flex;justify-content:space-between;align-items:flex-end;gap:2vw}
+.trap-head h1{font-family:var(--display);font-weight:600;font-size:clamp(34px,4vw,96px);line-height:1.1;margin:.3vw 0}
+.trap-head p{margin:0;color:var(--soft);font-size:max(14px,1.3vw)}
+.trap-count{font-family:var(--sans);font-weight:600;font-size:max(12px,1vw);background:var(--accent);color:var(--accent-ink);padding:.4vw 1vw;border-radius:999px;white-space:nowrap}
+.trap-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1vw;background:var(--paper);border-radius:10px;padding:1.2vw}
+.trap-strip figure{margin:0;display:flex;flex-direction:column;gap:.5vw}
+.trap-strip svg{width:100%;height:auto;display:block;background:#fff;border:2px solid var(--pen);border-radius:2px}
+.trap-strip figcaption{font-size:max(12px,.9vw);color:var(--pen)}
+.trap-strip figcaption b{display:block;font-family:var(--sans);font-size:max(12px,.7vw);color:#6B655A;letter-spacing:.08em}
+.mark{display:none}.revealed .mark{display:inline}
+.mark circle{fill:none;stroke:#E0503A;stroke-width:2.4}.mark rect{fill:#E0503A}.mark text{fill:#fff;font:600 8px var(--sans)}
+.trap-ans{background:var(--s1);border-radius:10px;padding:1vw 1.4vw}
+.trap-ans ol{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:.5vw;font-size:max(13px,1.15vw)}
+.trap-ans b{color:var(--accent)}
+
+/* plein cadre : média, contrat, films, palmarès */
+.media{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;gap:1vw;min-height:0}
+.media img{flex:1;min-height:0;max-width:100%;object-fit:contain;border-radius:8px;background:#000}
+.media .q{font-family:var(--display);font-weight:600;font-size:clamp(26px,2.8vw,64px);margin:0}
+.media .ans{font-family:var(--display);font-weight:600;font-size:clamp(30px,3.4vw,80px);color:var(--accent);margin:0}
+.contract{width:min(100%,1100px);background:var(--paper);color:var(--pen);border-radius:10px;padding:3vw 3.6vw;display:flex;flex-direction:column;gap:1vw;max-height:100%;overflow:hidden}
+.contract h1{font-family:var(--display);font-weight:600;font-size:clamp(28px,3vw,64px);margin:0;line-height:1.1}
+.contract p{margin:0;font-size:clamp(14px,1.25vw,26px);line-height:1.4}
+.contract .sig{display:flex;justify-content:space-between;gap:2vw;font-family:var(--sans);font-size:max(12px,.9vw);color:#6E685C;margin-top:1vw}
+.films,.prizes-big,.rank-big{width:min(100%,1500px);display:flex;flex-direction:column;gap:1vw}
+.films h1,.prizes-big h1,.rank-big h1{font-family:var(--display);font-weight:600;font-size:clamp(34px,4vw,96px);margin:0 0 .4vw;line-height:1.1}
+.film-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(3,minmax(0,1.3fr));gap:1vw;align-items:center;background:var(--s1);border-radius:8px;padding:.9vw 1.2vw;font-size:clamp(14px,1.3vw,30px)}
+.film-row b{font-weight:600}
+.film-row span{color:var(--soft)}
+.prize-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.2vw}
+.prize{background:var(--s1);border-radius:10px;padding:1.8vw 2vw;display:flex;flex-direction:column;gap:.6vw}
+.prize span{font-family:var(--sans);font-size:max(12px,.9vw);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.prize strong{font-family:var(--display);font-weight:600;font-size:clamp(30px,3.6vw,84px);line-height:1.1}
+.prize.won{box-shadow:inset 0 0 0 1px var(--accent)}
+.prize.won strong{color:var(--accent)}
+.prize.wait strong{color:var(--s3)}
+.prize em{font-family:var(--display);font-weight:600;color:var(--soft);font-size:clamp(14px,1.2vw,26px)}
+
+.overlay{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;z-index:40;background:rgba(13,15,19,.55);animation:ov 2.9s ease both;padding:16px}
+.overlay div{text-align:center}
+.overlay small{display:block;font-family:var(--sans);font-size:clamp(13px,1.3vw,28px);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:1vw}
+.overlay strong{font-family:var(--display);font-weight:600;font-size:clamp(56px,10vw,240px);line-height:1.1;color:var(--text)}
+.overlay .clap{display:block;width:clamp(80px,9vw,200px);height:clamp(18px,2vw,44px);margin:0 auto 2vw;background:repeating-linear-gradient(135deg,var(--text) 0 14px,var(--bg) 14px 28px);border:3px solid var(--text);border-radius:4px;animation:clap .5s ease both}
+@keyframes clap{from{transform:rotate(-14deg);transform-origin:left bottom}to{transform:none}}
+@keyframes ov{0%{opacity:0}10%{opacity:1}78%{opacity:1}100%{opacity:0}}
+.quit{display:flex;align-items:center;gap:6px;background:var(--s2);border:1px solid var(--hair);border-radius:999px;padding:6px 12px;font-family:var(--sans);font-size:max(12px,.8vw);letter-spacing:0;text-transform:none;color:var(--soft);opacity:.55;transition:opacity .2s}
+.quit:hover,.quit:focus-visible{opacity:1}
+
+@media (max-width:820px){
+  .proj{height:auto;min-height:100%;overflow:visible;padding:16px}
+  .p-main{grid-template-columns:1fr}
+  .stage{padding:22px}
+  .row{grid-template-columns:32px minmax(0,1fr) auto;padding:10px 12px}
+  .draws{grid-template-columns:1fr}
+  .trap-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .film-row{grid-template-columns:1fr}
+  .prize-grid{grid-template-columns:1fr}
+}
+
+/* ---------- PRODUCTEUR ---------- */
+.prod{max-width:760px;margin:0 auto;min-height:100%;padding:0 max(16px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 96px) max(16px,env(safe-area-inset-left,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.ph{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);display:flex;align-items:center;gap:10px;padding-block:14px 12px;border-bottom:1px solid var(--hair);margin-bottom:16px}
+.ph .p-brand{font-size:21px;gap:9px}
+.ph .p-brand .slate{width:24px;height:17px}
+.sync{width:8px;height:8px;border-radius:50%;background:var(--good);flex:none}
+.sync.busy{background:var(--accent)}.sync.err{background:var(--bad)}
+.ph .sp{flex:1}
+.cast{display:flex;align-items:center;gap:8px;background:var(--text);color:var(--bg);border:0;border-radius:999px;padding:9px 14px;font-weight:600;font-size:14px}
+.cast svg{width:16px;height:16px}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--s1);border-top:1px solid var(--hair);display:flex;justify-content:center;padding:6px max(8px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 6px) max(8px,env(safe-area-inset-left,0px))}
+.tabs-in{display:grid;grid-template-columns:repeat(5,1fr);width:100%;max-width:760px}
+.tab{background:none;border:0;padding:8px 4px;border-radius:8px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;font-weight:600;color:var(--muted)}
+.tab svg{width:20px;height:20px}
+.tab[aria-current="page"]{color:var(--text);background:var(--s2)}
+.card{background:var(--s1);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px;margin-bottom:12px}
+.card h2{margin:0;font-family:var(--display);font-weight:600;font-size:26px;line-height:1.05}
+.card h3{margin:0;font-size:13px;font-weight:600;color:var(--soft)}
+.now-title{font-family:var(--display);font-weight:600;font-size:30px;line-height:1.05;margin:0}
+.note{background:var(--s2);border-left:3px solid var(--accent);border-radius:6px;padding:10px 12px;font-size:15px;color:var(--text)}
+.tcp{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tcp .tc-num{font-size:44px}
+.row-btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{background:var(--s2);border:1px solid var(--hair);border-radius:8px;padding:8px 12px;font-weight:600;font-size:14px;color:var(--text)}
+.btn:hover{border-color:var(--muted)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent}
+.btn.sm{padding:5px 9px;font-size:13px}
+.btn.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.btn.danger{color:var(--bad)}
+.btn.armed{background:var(--bad);border-color:var(--bad);color:#160806}
+.btn:disabled{opacity:.4;cursor:default}
+.next{width:100%;text-align:left;background:var(--accent);color:var(--accent-ink);border:0;border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:2px;margin-bottom:12px}
+.next b{font-size:18px}
+.next span{font-size:13px;font-weight:600;opacity:.8}
+.onair{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--soft)}
+.onair i{width:8px;height:8px;border-radius:50%;background:var(--bad);box-shadow:0 0 0 3px rgba(224,104,79,.25)}
+.list{display:flex;flex-direction:column;gap:6px}
+.li{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--s2);border-radius:8px;padding:8px 10px;font-size:14px}
+.li.cur{box-shadow:inset 0 0 0 1px var(--accent)}
+.li small{font-family:var(--sans);font-size:12px;color:var(--muted)}
+.li .t{min-width:0}
+.field{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);min-width:0}
+.field input,.field select,.sel{background:var(--bg);border:1px solid var(--hair);border-radius:8px;padding:8px 10px;font-size:14px;color:var(--text);width:100%}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.mode{background:var(--s2);border:1px solid var(--hair);border-radius:10px;padding:10px 8px;font-size:13px;font-weight:600;text-align:center}
+.mode[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
+details{background:var(--s1);border-radius:12px;padding:12px 16px;margin-bottom:12px}
+details summary{cursor:pointer;font-weight:600;color:var(--soft)}
+details[open] summary{margin-bottom:12px}
+.stu{display:flex;flex-direction:column;gap:8px;background:var(--s2);border-radius:10px;padding:10px 12px}
+.stu-top{display:flex;align-items:center;gap:10px}
+.stu-top b{flex:1;font-size:16px}
+.stu-top .pts{font-size:16px;color:var(--accent)}
+.hint{color:var(--muted);font-size:13px;margin:0}
+.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.thumb{position:relative;background:#000;border-radius:8px;overflow:hidden;aspect-ratio:16/10;border:2px solid transparent}
+.thumb.cur{border-color:var(--accent)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb button.pick{position:absolute;inset:0;background:transparent;border:0}
+.thumb .tb{position:absolute;left:4px;right:4px;bottom:4px;display:flex;gap:4px}
+.thumb select{flex:1;min-width:0;font-size:12px;background:rgba(13,15,19,.85);border:0;border-radius:4px;padding:3px;color:var(--text)}
+.thumb .x{background:rgba(13,15,19,.85);border:0;border-radius:4px;padding:2px 6px;font-size:12px}
+.stars{display:flex;gap:2px}
+.star{background:none;border:0;padding:2px;font-size:20px;line-height:1.1;color:var(--s3)}
+.star.on{color:var(--accent)}
+.zero{font-size:12px;font-family:var(--sans);color:var(--muted);background:none;border:1px solid var(--s3);border-radius:4px;padding:2px 6px;margin-right:4px}.zero.on{color:var(--accent);border-color:var(--accent)}.stars{align-items:center}.star{font-size:24px;padding:4px}.sv{font-size:12px;color:var(--muted);min-width:30px;margin-left:6px}.clr{background:none;border:0;color:var(--muted);font-size:14px;padding:4px 6px}.clr:hover{color:var(--bad)}
+.gt{width:100%;border-collapse:collapse;font-size:14px}
+.gt th,.gt td{padding:7px 6px;border-bottom:1px solid var(--hair);text-align:right;font-variant-numeric:tabular-nums}
+.gt th:first-child,.gt td:first-child{text-align:left}
+.gt th{font-family:var(--sans);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.gt td.n{font-weight:600;color:var(--accent)}
+.tw{overflow-x:auto}
+.crit{display:grid;grid-template-columns:110px 1fr;gap:6px 10px;align-items:center;font-size:13px}
+.kit h3{margin:4px 0 0}
+.kit p,.kit li{color:var(--soft);font-size:14px;margin:0}
+.kit ul,.kit ol{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{background:none;border:1px solid var(--hair);border-radius:4px;padding:3px 10px;font-size:13px;color:var(--soft)}
+.kt{width:100%;border-collapse:collapse;font-size:13px}
+.kt td,.kt th{padding:6px;border-bottom:1px solid var(--hair);text-align:left;vertical-align:top;color:var(--soft)}
+.kt th{color:var(--muted);font-family:var(--sans);font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:500}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 84px);z-index:50;background:var(--text);color:var(--bg);padding:9px 14px;border-radius:999px;font-weight:600;font-size:14px;animation:ov 2.4s ease both;max-width:calc(100% - 32px)}
+.bdg{flex:none;font-size:12px;font-weight:600;letter-spacing:.04em;padding:2px 8px;border-radius:4px;border:1px solid var(--hair);color:var(--soft);white-space:nowrap}
+.bdg.note{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.bdg.defi{border-color:var(--accent);color:var(--accent)}
+.bdg.pause{color:var(--muted)}
+.now-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sees{margin:0;font-size:14px;color:var(--soft)}.sees span{color:var(--muted)}
+.fiche h3,.tool h3{margin:0 0 2px}
+.prep{background:var(--s2);border-left:3px solid var(--accent);border-radius:6px;padding:10px 12px}.prep p{margin:4px 0 0;font-size:15px}
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:1.5}
+.steps li::marker{color:var(--accent);font-weight:600}
+.tools{gap:16px}.tool{display:flex;flex-direction:column;gap:8px}.tool+.tool{border-top:1px solid var(--hair);padding-top:14px}
+.cnt{align-self:center;font-size:14px;color:var(--soft);padding:0 4px}
+.drawn{margin:0;font-family:var(--display);font-weight:600;font-size:26px;line-height:1.1;color:var(--accent)}
+.xpgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px}
+.xprow{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--s2);border-radius:8px;padding:6px 8px;font-size:14px}.xprow small{color:var(--muted);font-size:12px}
+.li .bdg{margin-left:auto}.li .t small{color:var(--muted);font-size:12px}
+.qsvg{background:#FBFAF6;border-radius:8px;max-height:60vh;aspect-ratio:16/9;display:grid;place-items:center}.qsvg svg{width:100%;height:100%}
+.dcard.long p{margin:0;font-size:clamp(15px,1.35vw,30px);line-height:1.45;color:var(--pen)}
+.drawn.long{font-family:var(--sans);font-weight:500;font-size:16px;line-height:1.5;color:var(--text)}
+.seq-desc.long{font-size:clamp(15px,1.25vw,26px);max-width:70ch;line-height:1.45}
+.vstrip{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:.6vw}.vstrip figure{margin:0;display:flex;flex-direction:column;gap:.3vw}.vstrip svg{width:100%;height:auto;border-radius:4px;display:block}.vstrip figcaption{font-size:max(12px,.75vw);color:var(--soft);line-height:1.25}
+.stage:has(.dcard.long) .tc-num,.stage:has(.vstrip) .tc-num,.stage:has(.seq-desc.long) .tc-num{font-size:clamp(36px,4.6vw,110px)}.stage:has(.dcard.long) .seq-title,.stage:has(.vstrip) .seq-title,.stage:has(.seq-desc.long) .seq-title{font-size:clamp(32px,3.8vw,90px)}
+.bk{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mcard ol{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:.5cqw;font-size:1.35cqw;line-height:1.4;color:var(--soft)}
+.mer-tab{display:flex;flex-direction:column;gap:.6cqw}.mer-row{display:grid;grid-template-columns:1fr 1.4fr 1.6fr;gap:1.2cqw;align-items:baseline;background:var(--s2);border-radius:.6cqw;padding:.9cqw 1.4cqw;font-size:1.7cqw}.mer-row b{font-weight:600}.mer-row span{color:var(--accent)}.mer-row em{font-style:normal;color:var(--soft);font-size:.85em}
+.live{display:none}.ph-title{display:none}
+@media (min-width:1100px){
+  .prod{max-width:none;margin:0;padding:0 24px 32px 228px;display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,32vw);grid-template-rows:auto 1fr;column-gap:24px;align-items:start}
+  .ph{grid-column:1 / -1}
+  .pmain{max-width:820px;min-width:0}
+  .live{display:flex;flex-direction:column;gap:10px;position:sticky;top:84px}
+  .live-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px;font-weight:500;color:var(--soft)}
+  .live-box{position:relative;overflow:hidden;border:1px solid var(--hair);border-radius:8px;background:var(--bg)}
+  .live-in{position:absolute;left:0;top:0;width:100vw;height:100vh;transform-origin:0 0;pointer-events:none}
+  .live-in .proj{height:100vh}
+  .tabs{top:0;bottom:0;right:auto;width:204px;border-top:0;border-right:1px solid var(--hair);padding:84px 12px 16px;justify-content:flex-start;flex-direction:column}
+  .tabs-in{display:flex;flex-direction:column;gap:4px;max-width:none}
+  .tab{flex-direction:row;justify-content:flex-start;gap:10px;font-size:15px;font-weight:500;padding:10px 12px}
+  .ph .p-brand{display:none}.ph-title{display:block;font-family:var(--display);font-weight:600;font-size:28px;line-height:1.1}.tabs-brand .slate{width:24px;height:17px}.tabs-brand{gap:9px;display:flex!important;position:absolute;left:24px;top:26px;font-size:22px}
+  .ph{padding-block:18px 14px}
+  
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script>
+(function(){
+var CFG={"apiKey": "AIzaSyDHvsf3EKGJmWAMo5sBxkCp43oUekmk_IY", "authDomain": "storyboard-quest.firebaseapp.com", "projectId": "storyboard-quest", "storageBucket": "storyboard-quest.firebasestorage.app", "messagingSenderId": "914995898992", "appId": "1:914995898992:web:d0b7f471ad76847678a2b5"}, ADMIN="EN_ATTENTE", REGIE=false;
+firebase.initializeApp(CFG);
+var fs=firebase.firestore(), auth=firebase.auth();
+window.__MEDIA={};
+fs.collection("media").onSnapshot(function(qs){qs.docs.forEach(function(d){window.__MEDIA[d.id]=d.data().d});window.dispatchEvent(new HashChangeEvent("hashchange"))},function(){});
+function resize(file){return new Promise(function(ok,ko){var r=new FileReader();r.onerror=ko;r.onload=function(){var im=new Image();im.onerror=ko;im.onload=function(){var k=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",0.82))};im.src=r.result};r.readAsDataURL(file)})}
+var assets={upload:function(f){return resize(f).then(function(d){return fs.collection("media").add({d:d,at:Date.now()})}).then(function(ref){return {id:ref.id}})}};
+var downloads={save:function(o){var b=o.data instanceof Blob?o.data:new Blob([o.data],{type:"text/plain;charset=utf-8"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=o.filename;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(u);a.remove()},1000);return Promise.resolve({status:"saved"})}};
+var who=new Promise(function(ok){
+  if(!REGIE){ok(false);return}
+  var first=true;
+  auth.onAuthStateChanged(function(u){
+    if(u){ok(u.uid===ADMIN);if(u.uid!==ADMIN)loginForm("Ce compte n\u2019a pas acc\u00e8s \u00e0 la r\u00e9gie.");return}
+    if(first){first=false;loginForm("")}
+  });
+});
+function loginForm(msg){
+  var app=document.getElementById("app");
+  app.innerHTML='<div class="poster"><div><span class="slate" aria-hidden="true"></span><h1>R\u00e9gie</h1><form id="lg" style="display:flex;flex-direction:column;gap:10px;width:min(320px,86vw);margin:18px auto 0;text-align:left"><label class="field" for="lg-e">E-mail<input id="lg-e" type="email" autocomplete="username" required></label><label class="field" for="lg-p">Mot de passe<input id="lg-p" type="password" autocomplete="current-password" required></label><button class="btn pri" type="submit">Entrer dans la r\u00e9gie</button><p class="hint" id="lg-m">'+(msg||"")+'</p></form></div></div>';
+  document.getElementById("lg").addEventListener("submit",function(e){e.preventDefault();var m=document.getElementById("lg-m");m.textContent="Connexion\u2026";
+    auth.signInWithEmailAndPassword(document.getElementById("lg-e").value.trim(),document.getElementById("lg-p").value).catch(function(){m.textContent="E-mail ou mot de passe incorrect."})});
+}
+window.__logout=function(){auth.signOut().then(function(){location.reload()})};
+window.claude={use:function(n){
+  if(n==="db")return who.then(function(){return fs});
+  if(n==="user")return who.then(function(ok){return {canEdit:function(){return Promise.resolve(ok)},isOwner:function(){return Promise.resolve(ok)}}});
+  if(n==="assets")return who.then(function(ok){return ok?assets:null});
+  if(n==="downloads")return Promise.resolve(downloads);
+  return Promise.resolve(null);
+}};
+})();
+</script><div id="app"><div class="poster"><div><span class="slate" aria-hidden="true"></span><h1>Storyboard Quest</h1><p>Ouverture du studio…</p></div></div></div>
+<script>
+(function(){
+"use strict";
+/* =================== DONNÉES DU WORKSHOP =================== */
+var DATES=["Lundi 2 novembre","Mardi 3 novembre","Jeudi 5 novembre","Vendredi 6 novembre"];
+var DSHORT=["Lun. 2 nov.","Mar. 3 nov.","Jeu. 5 nov.","Ven. 6 nov."];
+var THEMES=[["Raconter en images","Le cadre"],["Les règles de continuité","Les cases se répondent"],["Rythme, son et animatique","Lancement du projet"],["Production","Festival"]];
+/* Types : info (tu parles, pas de chrono) · defi (chrono + XP) · atelier (chrono, ni XP ni note) · note (chrono, rendu noté) · pause
+   I(type, minutes, titre, consigne affichée aux élèves, XP affichés, fiche du producteur)
+   fiche : p = à préparer · s = étapes · t = outils dans le conducteur · a = ce que l'écran affiche · r = rendu noté (0 à 5, ou "f" pour le final) */
+function I(type,m,t,d,x,f){f=f||{};return {type:type,m:m,t:t,d:d||"",x:x||"",p:f.p||"",s:f.s||[],tools:f.t||[],a:f.a||null,r:f.r==null?null:f.r,k:!!f.k,v:!!f.v}}
+function PAUSE(){return I("pause",0,"Pause","On reprend dans un quart d'heure.","",{s:["Pause d'un quart d'heure."]})}
+var PROGRAM={
+ "1-matin":[
+  I("info",0,"Entrée en scène du producteur","Bienvenue chez Storyboard Quest. Le studio recrute ses nouveaux réalisateurs.","",{
+   p:"Rien. La trame est dans l'onglet Kit, section Ouverture.",
+   s:["Lance cette séquence avant l'arrivée des élèves : le titre est déjà à l'écran quand ils entrent.","Joue le producteur et dis la trame avec tes mots.","Explique la règle du jeu en deux phrases : les défis rapportent des XP pour le classement ; les 7 rendus notés et le film final font la note sur 20.","Enchaîne directement sur le contrat."]}),
+  I("info",0,"Contrat d'embauche","Lisez, remplissez, signez. Vous êtes maintenant réalisateurs du studio.","5 XP à la signature",{
+   p:"7 contrats imprimés (onglet Kit, ou le doc Kit).",
+   s:["Le contrat s'affiche à l'écran.","Distribue les contrats. Ils remplissent leur nom et signent, tu signes aussi.","Clique « +5 à tous » ci-dessous.","Garde les contrats : tu les rends vendredi au bilan (« fin des contrats »)."],t:["xp"],a:{mode:"contrat"}}),
+  I("defi",20,"Se présenter en 3 cases","Trois cases, sans texte : d'où je viens, ce que j'aime, ce que je rêve de filmer. On juge la clarté, pas le coup de crayon.","10 XP à chacun · non noté",{
+   p:"La planche vierge 3 cases (PDF) ou une feuille A4 par élève, des crayons.",
+   s:["Distribue les feuilles et lance le chrono : 12 minutes de dessin.","Tour de table : chacun montre sa planche, les autres disent ce qu'ils comprennent AVANT qu'il explique.","Fais remarquer quand la salle a compris sans explication : c'est la règle d'or du studio.","Clique « +10 à tous ».","À la pause, chacun photographie sa planche et la dépose dans Classroom, devoir « Point de départ ». Ce n'est pas noté : tu la compareras au film final pour le prix de la meilleure progression."],t:["xp"]}),
+  I("info",0,"Flash 1 : un storyboard, c'est quoi ?","Le film, avant le film.","",{
+   p:"Facultatif : une paire d'exemples (une planche, puis l'image du film) dans l'onglet Écran, mode Exemples. Sans exemple, la diapo correspondante est sautée.",
+   s:["Fais défiler les diapos avec les flèches ci-dessous.","Le message à faire passer : un storyboard, c'est le film dessiné avant le tournage ; il est réussi s'il se lit sans son auteur."],t:["slides"],a:{mode:"flash",k:0}}),
+  I("defi",30,"Le téléphone dessiné","Une phrase, un dessin, une phrase… La feuille fait le tour de la table. Le message survivra-t-il ?","10 XP à chacun · +5 XP au dessin le plus clair",{
+   p:"Une feuille A4 par élève, pliée en accordéon en 6 bandes horizontales. Un crayon chacun.",
+   s:["Tour 1 (1 min) : chacun écrit en haut de sa feuille une phrase d'action très visuelle, par exemple « Un chat vole une saucisse sur un barbecue ». Il passe sa feuille à droite.","Tour 2 (1 min 30) : on lit la phrase, on la dessine dans la bande suivante, en une seule case. On replie pour cacher la phrase. On passe à droite.","Tour 3 (1 min) : on ne voit que le dessin. On écrit dessous ce qu'on comprend, on replie pour cacher le dessin, on passe.","On alterne dessin et phrase jusqu'à remplir les 6 bandes (environ 10 minutes en tout). Utilise le chrono pour rythmer.","On déplie et on lit chaque chaîne à voix haute, de la première phrase à la dernière.","Une seule question de débrief : où la chaîne a-t-elle cassé, et qu'est-ce qui manquait au dessin ? (personnage pas reconnaissable, action pas claire, trop d'éléments…)","Clique « +10 à tous », puis +5 au dessin que la salle trouve le plus clair."],t:["xp"]}),
+  PAUSE(),
+  I("defi",45,"Roman-photo flash","En binôme ou en trio : une histoire tirée au sort, à raconter en 6 photos au téléphone. L'histoire est imposée, à vous de choisir les cadres. Aucun texte.","10 XP si la salle comprend votre histoire · +10 XP au coup de cœur",{
+   p:"Les téléphones des élèves. Vérifie qu'ils ont le droit de circuler dans l'école. Un devoir Classroom « Roman-photo ». Tu ne fournis rien d'autre : chaque groupe tire une histoire complète, avec sa fin. Ils ne l'inventent pas, ils la mettent en images.",
+   s:["Tire les groupes ci-dessous : des binômes, et un trio automatiquement si le nombre est impair.","Tire une histoire par groupe avec le bouton ci-dessous. Elle s'affiche en entier à l'écran : le groupe la photographie avec son téléphone ou la recopie.","Règles : 6 photos dans l'ordre, aucun texte, au moins deux cadres différents (de loin, de près). Quand les deux personnages sont à l'image, posez le téléphone et utilisez le retardateur. En trio, le troisième tient le téléphone.","Lance le chrono : 30 minutes pour tourner. Ils choisissent eux-mêmes l'endroit (couloir, salle de cours, extérieur…).","Chaque groupe dépose ses 6 photos dans Classroom, dans l'ordre.","Projection (15 min) : ouvre chaque roman-photo depuis Classroom sur le grand écran. La salle raconte l'histoire AVANT que le groupe ne parle.","Si la salle a compris : +10 XP au groupe (boutons ci-dessous). Vote à main levée : +10 XP au coup de cœur.","Phrase de conclusion : « Vous venez de faire votre premier storyboard, avec un téléphone. »"],t:["pairs","draw:roman","xp"]}),
+  I("note",25,"Rendu 1 : l'histoire en 6 cases","Racontez cette histoire en 6 cases dessinées, sans texte. En Italie, un train de voyageurs s'engage sur un immense pont au-dessus d'un ravin. Un rail cède : le train déraille et la locomotive bascule dans le vide. À Paris, Alex, un jeune super-héros, entend le fracas au loin. Il traverse l'Europe en hypervitesse. Il rattrape la locomotive au-dessus du vide et la retient à bout de bras. Dans sa cabine, le conducteur n'en revient pas.","Rendu noté",{
+   p:"La planche vierge 6 cases imprimée (PDF), une par élève et quelques-unes en plus. Un devoir Classroom « Rendu 1 ».",
+   s:["L'histoire s'affiche à l'écran, la même pour toute la classe. Il n'y a rien à inventer : tout le travail porte sur le choix des 6 moments et des 6 cadres.","Chacun dessine seul, à la main, sur la planche 6 cases. Aucun texte dans les cases.","Lance le chrono : 20 minutes de dessin, 5 minutes pour photographier la planche à plat et la déposer dans Classroom.","Note les étoiles ci-dessous, en direct ou ce soir. La brique attendue : quelqu'un qui ne connaît pas l'histoire la comprend en regardant les 6 cases."],r:0}),
+  I("info",0,"Débrief du matin","Retours, classement et bonus de production.","Bonus",{
+   s:["Affiche le classement (bouton ci-dessous).","Montre deux ou trois planches du rendu 1. Demande à la salle ce qu'elle comprend, puis rappelle la règle d'or.","Donne un bonus de production au meilleur du matin (onglet Élèves, menu « Bonus »). Une demi-journée sur deux, donne-le plutôt à celui qui a le plus progressé."],t:["rank"]})],
+ "1-aprem":[
+  I("info",0,"Flash 2 : le cadre","Les 8 valeurs de plan, la plongée et la contre-plongée.","",{
+   s:["Fais défiler les diapos ci-dessous.","Fais répéter les abréviations à voix haute : PGE, PE, PM, PA, PR, GP, TGP. Le Pictionary qui suit les utilise."],t:["slides"],a:{mode:"flash",k:1}}),
+  I("defi",15,"Pictionary des plans","Un élève dessine au tableau une valeur de plan et un sujet. Les autres trouvent les deux. Le premier qui trouve marque.","5 XP par bonne réponse",{
+   p:"Le grand écran tactile (avec une appli de dessin) ou un tableau et un feutre.",
+   s:["Tire une carte secrète avec le bouton ci-dessous : une valeur de plan et un sujet (par exemple « Gros plan · un lion »). Elle n'apparaît que chez toi. Montre-la discrètement au dessinateur.","Il dessine en 45 secondes.","Le premier qui trouve la valeur ET le sujet gagne 5 XP et dessine à son tour. Exige le terme exact : « gros plan », pas « de près »."],t:["secret","xp"]}),
+  I("defi",35,"Chasse au cadre","En binôme : photographiez les 8 valeurs de plan dans l'école, en vous mettant en scène l'un l'autre. Une photo par valeur, dans l'ordre.","5 XP par valeur juste",{
+   p:"Les téléphones. Cour et fenêtres autorisées pour le plan de grand ensemble. Un devoir Classroom « Chasse au cadre ».",
+   s:["Tire les binômes ci-dessous. Garde-les : les mêmes servent à la projection qui suit.","Les 8 valeurs restent affichées à l'écran pendant tout le défi.","Lance le chrono : 30 minutes, puis dépôt dans Classroom."],t:["pairs"],v:1}),
+  I("info",0,"Projection de la chasse","On regarde vos 8 plans. La salle annonce chaque valeur.","5 XP par valeur juste",{
+   s:["Mêmes binômes que pour la chasse : ils restent affichés ci-dessous.","Ouvre chaque série depuis Classroom sur le grand écran.","Pour chaque photo, la salle annonce la valeur. Si le binôme l'a bien cadrée : +5 XP au binôme (boutons ci-dessous)."],t:["pairs-keep","xp"],k:1,v:1}),
+  PAUSE(),
+  I("defi",25,"Quiz : quel plan ?","Une image, une question : quelle valeur de plan ? Le plus rapide gagne.","5 XP par bonne réponse",{
+   p:"Conseillé : 10 à 15 images de films dans l'onglet Écran, mode Quiz (une valeur nette par image, réponse écrite sous chaque image). Sans images, le quiz utilise les 8 dessins du flash 2.",
+   s:["Image suivante et réponse avec les boutons ci-dessous.","Le premier qui donne la bonne valeur gagne 5 XP."],t:["quiz","xp"],a:{mode:"quiz"}}),
+  I("note",50,"Rendu 2 : les 3 émotions","La même scène, trois fois, en 3 cases : 1. Seul chez lui le soir, quelqu'un entend frapper. 2. Il s'approche de la porte. 3. Il ouvre. PEUR : il n'y a personne, juste le couloir sombre. DRÔLE : c'est un voisin en pyjama qui lui rapporte son chat. ÉMOUVANT : c'est son meilleur ami, parti depuis des années, une valise à la main. Sous chaque case : la valeur (PM, GP…), et l'angle s'il n'est pas normal.","Rendu noté",{
+   p:"Trois planches vierges 3 cases par élève. Un devoir Classroom « Rendu 2 ».",
+   s:["La scène s'affiche à l'écran, la même pour toute la classe. Les trois révélations sont imposées : il n'y a rien à inventer.","Le message : l'action ne change pas, seuls le cadre et l'angle créent la peur, le rire ou l'émotion.","Lance le chrono : 45 minutes de dessin, 5 minutes pour la photo et le dépôt.","Note les étoiles ci-dessous. La brique attendue : la valeur et l'angle servent l'émotion."],r:1}),
+  I("info",0,"Débrief de la journée","Retours, classement, bonus et avant-goût de mardi.","Bonus",{
+   s:["Affiche le classement.","Bonus de production au meilleur de l'après-midi (onglet Élèves).","Ce soir : vérifie les étoiles des rendus 1 et 2 (onglet Notes)."],t:["rank"]})],
+ "2-matin":[
+  I("info",0,"Point du producteur","Le classement après lundi, et la mission du jour.","",{s:["Affiche le classement et annonce la journée : les règles de continuité."],t:["rank"]}),
+  I("defi",25,"Atelier 180°","Deux comédiens, un dialogue, vos caméras. Pourquoi ça casse ? À vous de trouver.","15 XP à chacun si la classe trouve la règle",{
+   p:"Deux chaises face à face. Les téléphones.",
+   s:["Deux volontaires jouent un échange de 4 répliques, assis face à face.","Les autres filment chacun un plan court, en se plaçant où ils veulent autour d'eux.","Montrez les plans à la suite sur le grand écran. Dans certains enchaînements, les deux comédiens semblent regarder du même côté.","Demande : pourquoi ça casse ? Laisse-les chercher. Indice si besoin : où étaient les caméras par rapport à la ligne entre les deux comédiens ?","Quand la classe formule la règle elle-même : « +15 à tous »."],t:["xp"]}),
+  I("info",0,"Flash 3 : la continuité","180°, champ-contrechamp, raccord regard, continuité.","",{s:["Fais défiler les 3 diapos ci-dessous en reprenant exactement la situation qu'ils viennent de jouer."],t:["slides"],a:{mode:"flash",k:2}}),
+  I("defi",25,"Chacun sa version du 180°","Une action tirée au sort : dessinez la scène vue de dessus, la ligne et vos caméras.","15 XP si c'est juste",{
+   p:"Une feuille par élève.",
+   s:["Tire l'action avec le bouton ci-dessous : la même pour tous.","Chacun dessine la scène vue de dessus : les deux personnages, la ligne, trois caméras du bon côté, et une quatrième caméra interdite, barrée.","Lance le chrono : 20 minutes.","Passe dans les rangs : +15 XP à chaque plan juste."],t:["draw:a180","xp"]}),
+  PAUSE(),
+  I("defi",40,"Le raccord piégé","Six planches, des erreurs cachées. Notez seuls sur votre feuille les erreurs que vous trouvez, 3 minutes par planche.","5 XP par erreur trouvée",{
+   p:"Une feuille par élève.",
+   s:["Les planches s'affichent. Passe de l'une à l'autre avec les boutons ci-dessous.","3 minutes par planche (chrono), chacun note seul.","Après la 6e planche, reprends depuis la 1re et révèle chaque corrigé.","Chacun compte ses erreurs justes : 5 XP par erreur (boutons ci-dessous)."],t:["pieges","xp"],a:{mode:"pieges"}}),
+  I("note",30,"Rendu 3 : le rendez-vous","Deux personnages se retrouvent, s'assoient, se parlent. 6 cases numérotées 1.1 à 1.6, sans franchir la ligne.","Rendu noté",{
+   p:"La planche vierge 6 cases, une par élève. Un devoir Classroom « Rendu 3 ».",
+   s:["Rappelle les attendus : la ligne des 180° respectée, un champ-contrechamp, un raccord regard, les cases numérotées 1.1 à 1.6.","Lance le chrono : 25 minutes de dessin, 5 minutes pour la photo et le dépôt.","Note les étoiles ci-dessous."],r:2}),
+  I("defi",15,"Galerie","Toutes les planches au mur. Chacun vote pour sa préférée, pas la sienne.","10 XP au plus voté",{
+   s:["Les planches au mur (ou à l'écran depuis Classroom).","Vote à main levée, personne ne vote pour soi : +10 XP au plus voté."],t:["xp"]}),
+  I("info",0,"Débrief du matin","Retours, classement et bonus.","Bonus",{s:["Affiche le classement.","Bonus de production au meilleur du matin (onglet Élèves)."],t:["rank"]})],
+ "2-aprem":[
+  I("defi",20,"Le geste coupé","Un élève lance, un autre rattrape, ailleurs. Deux photos, deux plans : est-ce que ça raccorde ?","10 XP si le raccord fonctionne",{
+   p:"Un objet à lancer par binôme : balle, trousse, bouteille vide.",
+   s:["Tire les binômes ci-dessous.","Mission : photo 1, A lance l'objet ; photo 2, B le rattrape dans un autre lieu. Le geste doit paraître continu (même direction, même objet).","Lance le chrono : 15 minutes.","Montre quelques paires à l'écran : +10 XP aux binômes dont le raccord fonctionne."],t:["pairs","xp"]}),
+  I("info",0,"Flash 4 : les cases se répondent","Mouvement, regard, objet, son.","",{
+   p:"Facultatif : 2 ou 3 extraits vidéo de raccords (cinéma, pub, transition de réseau social).",
+   s:["Fais défiler la diapo, puis montre tes extraits : c'est le même outil partout."],t:["slides"],a:{mode:"flash",k:3}}),
+  I("defi",35,"Le relais des raccords","Chacun commence une histoire en une case. La feuille tourne : chaque case doit raccorder avec la précédente.","15 XP à chacun",{
+   p:"La planche vierge 12 cases, une par élève.",
+   s:["Chacun dessine la case 1 d'une histoire sur sa planche, puis passe la feuille à droite.","Le suivant dessine la case suivante, qui doit raccorder avec la précédente (mouvement, regard, objet ou son). Il écrit sous la case le type de raccord choisi.","3 minutes par case (chrono), jusqu'à ce que chaque feuille revienne à son auteur.","Chacun montre la chaîne de sa feuille : on vérifie que chaque raccord fonctionne. « +15 à tous »."],t:["xp"]}),
+  I("info",0,"Flash 5 : faire bouger la caméra","Flèches orange pour la caméra, flèches noires pour le personnage.","",{s:["Fais défiler les diapos ci-dessous. Insiste sur la différence entre zoom et travelling."],t:["slides"],a:{mode:"flash",k:4}}),
+  PAUSE(),
+  I("note",65,"Rendu 4 : la course-poursuite","12 cases numérotées 1.1 à 1.12. Sous chaque case : valeur et mouvement. Tout le monde court dans le même sens, et on coupe pendant le geste.","Rendu noté",{
+   p:"La planche vierge 12 cases, une par élève. Un devoir Classroom « Rendu 4 ». Garde ces planches : elles servent jeudi pour l'animatique.",
+   s:["Rappelle les attendus : direction constante, flèches de mouvement selon la convention, cases numérotées.","Lance le chrono : 60 minutes de dessin, 5 minutes pour la photo et le dépôt.","Note les étoiles ci-dessous."],r:3}),
+  I("info",0,"Galerie et débrief","Galerie rapide, retours sur les deux jours.","Bonus",{
+   s:["Galerie rapide des courses-poursuites.","Affiche le classement, bonus au meilleur de l'après-midi.","Ce soir : étoiles des rendus 3 et 4."],t:["rank"]}),
+  I("info",0,"Brief du mercredi","Mercredi, vous travaillez seuls. Le matin : le découpage technique d'une histoire imposée. L'après-midi : le storyboard du découpage d'un camarade. C'est le rendu 7, présenté jeudi matin.","Rendu noté",{
+   p:"Avant mardi soir : crée dans Classroom les devoirs « Mercredi · Découpage » et « Mercredi · Storyboard ». Joins-y le texte des missions, les 8 histoires, le modèle de découpage et le découpage de secours (onglet Kit, section Mercredi). Chaque élève emporte une planche vierge 12 cases.",
+   s:["Clique « Tirer les histoires et les échanges » ci-dessous : chaque élève reçoit une histoire différente et le nom du camarade à qui il enverra son découpage.","Affiche les missions, puis les attributions (boutons ci-dessous). Laisse-leur le temps de noter leur histoire et leur camarade.","Montre le découpage modèle (Le ticket de loterie, onglet Kit) : c'est exactement ce qu'on attend le matin.","Matin : chacun écrit le découpage de son histoire, 10 à 12 plans pour 45 secondes, dans le tableau modèle. Envoi au camarade par e-mail ou messagerie, et dépôt dans Classroom, dès qu'il est terminé.","Après-midi : chacun dessine le storyboard du découpage reçu, sans rien changer. Quand une indication manque ou est floue, il dessine son meilleur choix et met un « ? » sous la case. Dépôt dans Classroom une fois la planche finie.","Règle de secours : si on n'a toujours rien reçu au moment de commencer le storyboard, on dessine le découpage de secours (Le ticket de loterie) et on le signale dans Classroom.","Rappelle que c'est noté (rendu 7) et présenté jeudi matin. Devoir en plus : installer Storyboarder, sans l'utiliser."],t:["mercredi"],a:{mode:"mercredi"}})],
+ "3-matin":[
+  I("info",0,"Retour au studio","Le classement, et ce qui nous attend aujourd'hui.","",{s:["Affiche le classement. Vérifie que tout le monde a déposé ses deux travaux du mercredi, et que Storyboarder est installé."],t:["rank"]}),
+  I("note",35,"Rendu 7 : les travaux du mercredi","Pour chaque élève : son découpage, puis le storyboard qu'un camarade en a tiré. Est-ce le film qu'il avait en tête ?","Rendu noté",{
+   p:"Les dépôts Classroom des deux devoirs du mercredi, prêts à ouvrir.",
+   s:["Affiche les attributions (bouton ci-dessous) pour rappeler qui a dessiné le découpage de qui.","Environ 5 minutes par élève : projette son découpage, puis le storyboard dessiné par son camarade.","L'auteur dit si c'est le film qu'il avait en tête. La salle repère les écarts et les « ? » : le découpage était-il flou, ou le dessin infidèle ?","Toi : une remarque sur la précision du découpage, une sur la fidélité du storyboard.","Note les étoiles ci-dessous : chaque élève est noté sur son découpage (auteur) et sur son storyboard (dessinateur). La brique attendue : un découpage qu'on peut dessiner sans poser de question, et un storyboard fidèle."],t:["mercredi"],r:6}),
+  I("info",0,"Flash 6 : rythme et son","La durée d'une case est un choix.","",{s:["Fais défiler les diapos ci-dessous.","Exemple à faire vivre : passe la même planche avec deux musiques différentes. Le son change le sens de l'image."],t:["slides"],a:{mode:"flash",k:5}}),
+  I("info",0,"Démo Storyboarder","Prise en main guidée : dessiner une case, régler sa durée, ajouter un son, exporter.","",{
+   p:"Storyboarder installé sur ton ordinateur, un export vidéo avec son déjà testé.",
+   s:["Sur le grand écran : une case, sa durée, un son, l'export vidéo.","Ils refont chaque geste en même temps que toi."]}),
+  I("atelier",30,"Redessin de la course-poursuite","Votre course-poursuite de mardi, redessinée dans Storyboarder. Commencez par les cases clés, simplifiez le dessin.","",{
+   s:["Lance le chrono : 30 minutes.","Passe voir chacun.","Plan B si quelqu'un est bloqué : photographier ses cases papier et les importer dans Storyboarder."]}),
+  PAUSE(),
+  I("note",30,"Rendu 5 : le bon tempo","L'animatique de votre course-poursuite, avec du son. Durée : 30 secondes pile.","Rendu noté",{
+   p:"Un devoir Classroom « Rendu 5 » (fichier vidéo).",
+   s:["Lance le chrono : 25 minutes de montage, 5 minutes pour l'export et le dépôt.","Conseil : accepte une seconde d'écart pour éviter les débats.","Note les étoiles ci-dessous."],r:4}),
+  I("defi",20,"Projection des animatiques","On regarde, on vote.","10 XP au plus voté",{s:["Projette les animatiques depuis Classroom.","Vote à main levée, personne ne vote pour soi : +10 XP au plus voté."],t:["xp"]}),
+  I("info",0,"Débrief et annonce du projet final","Cet après-midi, chacun reçoit sa mission de réalisateur.","Bonus",{s:["Affiche le classement, bonus au meilleur du matin.","Annonce le projet final : une fiction de 45 secondes, tirée au sort cet après-midi."],t:["rank"]})],
+ "3-aprem":[
+  I("info",0,"Cérémonie du tirage","Chaque réalisateur tire son genre, son lieu et son objet. Director's cut autorisé.","",{
+   s:["Appelle chaque élève et clique « Tirer » à côté de son nom (ci-dessous). Ses trois cartes s'affichent à l'écran.","Celui qui a un Director's cut peut changer une contrainte dans le menu."],t:["projets"],a:{mode:"tirage"}}),
+  I("info",0,"Flash 7 : une histoire en 45 s","Un personnage, un désir, un obstacle, une chute.","",{s:["Fais défiler les diapos ci-dessous."],t:["slides"],a:{mode:"flash",k:6}}),
+  I("defi",35,"Atelier idées","3 idées en 15 minutes. Puis on en garde une.","10 XP à chacun",{
+   s:["Lance le chrono : 15 minutes pour écrire 3 idées, chacune en une phrase.","Passe voir chacun et aide-le à choisir la meilleure.","+10 XP à chaque élève qui a ses 3 idées."],t:["xp"]}),
+  I("info",0,"Flash 8 : le pitch","Accroche, histoire, promesse.","",{s:["Fais défiler la diapo. Ils écrivent leur logline avec la formule affichée."],t:["slides"],a:{mode:"flash",k:7}}),
+  I("atelier",25,"Préparation du pitch","Une minute, pas une seconde de plus.","",{s:["Lance le chrono : 25 minutes.","Fais-les s'entraîner à voix haute, par deux, avec le chrono d'une minute."],t:["pitch"]}),
+  PAUSE(),
+  I("note",35,"Rendu 6 : le pitch","Une minute devant tout le studio. Le producteur donne son feu vert.","Rendu noté",{
+   s:["Chacun passe debout, face à la salle. Clique « Chrono 1 min » avant chaque pitch.","Donne ton feu vert, ou une piste de correction en une phrase.","Note les étoiles ci-dessous."],t:["pitch"],r:5}),
+  I("atelier",35,"Premières cases","Ajustez votre idée et crayonnez vos premières cases.","",{s:["Lance le chrono.","Passe voir chacun."]}),
+  I("info",0,"Clôture du classement","Le classement XP est arrêté. Le 1er reçoit le Joker pour son film.","Joker",{
+   s:["Clique « Arrêter le classement et donner le Joker » ci-dessous (deux clics).","Le classement s'affiche. Explique le Joker : choisir son ordre de passage au festival et refaire une case après la réunion de production.","Ce soir : étoiles des rendus 5 et 6."],t:["closerank"],a:{mode:"classement"}})],
+ "4-matin":[
+  I("info",0,"Brief de production","Livraison de votre storyboard et de votre animatique au clap de fin, juste avant le festival.","",{
+   s:["Rappelle les 4 critères de la grille du festival (onglet Kit).","Annonce l'heure exacte de livraison, que tu fixes toi-même selon l'avancée."]}),
+  I("atelier",75,"Production","Storyboard de production (chaque case : numéro 1.1…, valeur, mouvement, durée, action ou dialogue, son), puis animatique de 45 secondes. La planche doit être finie à la réunion de production.","",{s:["Lance le chrono.","Fais le tour des élèves."]}),
+  I("defi",20,"Réunion de production","Deux minutes chacun : où en êtes-vous ?","15 XP à chacun",{
+   s:["Chaque élève montre sa planche : elle doit être finie. Sinon, il réduit son nombre de cases.","Le Joker peut refaire une case maintenant.","« +15 à tous »."],t:["xp"]}),
+  PAUSE(),
+  I("atelier",70,"Production","On continue : l'animatique.","",{s:["Lance le chrono.","Fais le tour des élèves."]})],
+ "4-aprem":[
+  I("atelier",45,"Finitions","Dernières retouches avant la livraison.","",{s:["Lance le chrono."]}),
+  I("info",0,"Clap de fin","Déposez votre storyboard et votre animatique sur Classroom.","",{s:["Vérifie dans Classroom que chacun a déposé ses deux fichiers."]}),
+  I("info",0,"Ouverture du festival","Les grilles de notation sont distribuées.","",{
+   p:"7 grilles des camarades imprimées (onglet Kit).",
+   s:["Distribue les grilles et explique-les : 4 critères de 1 à 5, on ne se note pas soi-même."]}),
+  I("note",45,"Projections","Pitch d'une minute, animatique de 45 secondes, une minute pour remplir sa grille.","Final noté",{
+   s:["Le Joker choisit son ordre de passage, puis les autres.","Pour chaque élève : « Chrono 1 min » pour le pitch, puis l'animatique depuis Classroom, puis une minute pour remplir les grilles.","Note ta grille ci-dessous (4 critères) pendant ou juste après chaque film."],t:["pitch"],r:"f"}),
+  I("info",0,"Coup de cœur","Chacun désigne son coup de cœur, pas le sien.","",{s:["Ramasse les grilles."]}),
+  I("info",0,"Délibération","Le producteur délibère.","",{s:["Onglet Notes : saisis les fiches des camarades, puis choisis les prix."]}),
+  I("info",0,"Cérémonie des prix","Public, producteur, audace, progression.","",{s:["Choisis un prix à la fois dans l'onglet Écran : il se révèle en grand."],a:{mode:"palmares"}}),
+  I("info",0,"Bilan","Ce que j'ai osé cette semaine. Fin des contrats.","",{s:["Tour de table : une chose que chacun a osée cette semaine.","Rends les contrats signés lundi, et le diplôme si tu l'as imprimé."]})]
+};
+
+var MER=[
+ ["Le dernier métro","Une jeune femme court dans un couloir de métro désert. Elle entend la rame arriver et dévale l'escalier. Les portes se ferment juste devant elle. Elle frappe la vitre, le métro part sans elle. Sur le quai, un vieil homme assis sur un banc lui tend la moitié de son sandwich. Elle s'assoit à côté de lui."],
+ ["Le cambrioleur et le chien","La nuit, un cambrioleur entre par la fenêtre d'une maison endormie. Il avance à pas de loup, lampe torche à la main. Un énorme chien se dresse devant lui en grognant. Le cambrioleur sort un biscuit de sa poche et le lui tend. Dernière image : le cambrioleur repart par la fenêtre, et le chien le suit en remuant la queue."],
+ ["L'entretien d'embauche","Un candidat attend dans un couloir, très stressé. On l'appelle. Il entre, trébuche sur le tapis et renverse le café du recruteur sur son bureau. Silence. Le recruteur le regarde, éclate de rire et lui tend la main : c'est son ancien camarade de classe."],
+ ["Le penalty","Dernière minute d'un match de football. Un joueur pose le ballon au point de penalty. Le gardien le fixe. Le joueur prend son élan et frappe. Le ballon touche la barre transversale… et rentre. Le joueur tombe à genoux, ses coéquipiers lui sautent dessus."],
+ ["Le gâteau d'anniversaire","Un enfant porte un gros gâteau aux bougies allumées dans un couloir sombre. Derrière une porte, sa famille chante. Il pousse la porte avec le coude, se prend les pieds dans le seuil, et le gâteau s'envole. Le gâteau retombe, intact, dans les mains de son père."],
+ ["L'ascenseur en panne","Un homme pressé entre dans un ascenseur où se trouve déjà une femme. L'ascenseur s'arrête net entre deux étages, la lumière clignote. L'homme panique et appuie sur tous les boutons. La femme sort calmement un jeu de cartes. Dernière image : les portes s'ouvrent, ils sont assis par terre en pleine partie, et ne veulent plus sortir."],
+ ["Le cerf-volant","Sur une plage, une petite fille fait voler un cerf-volant. Une rafale lui arrache la ficelle des mains. Le cerf-volant s'envole au-dessus des dunes. Un garçon court, saute et attrape la ficelle au vol. Il revient et rend le cerf-volant à la petite fille, qui lui sourit."],
+ ["Le duel","Deux cow-boys se font face dans la rue principale d'une ville de western. Les habitants ferment leurs volets. Les mains frôlent les étuis. Le premier dégaine… un harmonica et joue trois notes. Le second dégaine une guitare et lui répond. Les habitants sortent et applaudissent."]
+];
+var MODELE={t:"Le ticket de loterie",h:"Un homme gratte un ticket de loterie à la terrasse d'un café. Il a gagné. Il bondit de joie et lâche le ticket, qu'un coup de vent emporte. Il le poursuit entre les tables. Le ticket se pose dans une flaque, devant un chien, qui le mange.",rows:[
+ ["1.1","PGE","Normal","Fixe","4 s","La terrasse d'un café ensoleillé. Un homme seul à une table.","Ambiance de rue","—"],
+ ["1.2","PR","Normal","Fixe","4 s","Il gratte un ticket avec une pièce, concentré.","Grattement","Regard vers le ticket"],
+ ["1.3","TGP","Plongée","Fixe","3 s","Le ticket : trois symboles identiques apparaissent.","Le grattement s'arrête","—"],
+ ["1.4","GP","Normal","Zoom avant","3 s","Son visage : ses yeux s'écarquillent.","Silence","—"],
+ ["1.5","PM","Contre-plongée","Fixe","4 s","Il bondit de joie, sa chaise tombe derrière lui.","Cri de joie, chaise qui tombe","Mouvement"],
+ ["1.6","GP","Normal","Fixe","2 s","Sa main lâche le ticket pour lever le poing.","Coup de vent","Objet (le ticket)"],
+ ["1.7","PE","Normal","Panoramique gauche-droite","5 s","Le ticket s'envole au-dessus des tables, l'homme court derrière.","Vent, pas rapides","Mouvement, même sens"],
+ ["1.8","PA","Normal","Travelling latéral","5 s","Il court, bras tendus, et bouscule un serveur.","Plateau renversé","Mouvement, même sens"],
+ ["1.9","TGP","Plongée","Fixe","3 s","Le ticket se pose dans une flaque, devant les pattes d'un chien.","Plouf","Regard"],
+ ["1.10","PM","Normal","Fixe","4 s","L'homme arrive, essoufflé, et se penche.","Halètements","—"],
+ ["1.11","GP","Normal","Fixe","3 s","Le chien mâche le ticket.","Mâchonnement","—"],
+ ["1.12","PE","Plongée","Fixe","5 s","L'homme s'assoit dans la flaque, le chien remue la queue.","Une musique triste démarre","—"]]};
+var MER_COLS=["Plan","Valeur","Angle","Mouvement","Durée","Action","Son","Raccord"];
+
+var DECKS={
+ roman:{n:"Histoire du roman-photo",items:[
+  "La dernière chaise. A et B repèrent en même temps la dernière chaise libre. Ils accélèrent, puis se mettent à courir. A arrive le premier et s'assoit, triomphant. Il se relève aussitôt en grimaçant : il était assis sur un chewing-gum. B éclate de rire.",
+  "La porte qui résiste. A veut passer une porte. Il pousse : elle ne s'ouvre pas. Il pousse plus fort, avec l'épaule, puis à deux mains. B arrive derrière lui, attend, puis tire simplement la porte vers lui. A, gêné, lui fait signe de passer en premier.",
+  "Le téléphone oublié. A pose son téléphone sur une table et s'en va. B le remarque, le prend et court derrière A pour le lui rendre. A se retourne, croit qu'on le poursuit et s'enfuit. B finit par le rattraper et lui tend le téléphone. A le reprend, honteux, et le remercie.",
+  "Le gobelet. A marche lentement avec un gobelet d'eau rempli à ras bord, sans le quitter des yeux. B surgit d'un angle et l'évite de justesse. A souffle, soulagé, et sourit. Il fait un pas de plus, trébuche et renverse toute l'eau sur ses chaussures.",
+  "Les clés. A arrive devant une porte fermée et cherche ses clés : poches, veste, sac. Paniqué, il vide son sac par terre. B arrive, le regarde faire, puis lui montre la porte : les clés sont déjà dans la serrure. A ramasse ses affaires, vexé.",
+  "Le selfie raté. A pose son téléphone et lance le retardateur pour une photo avec B. Il court se placer à côté de B. Il glisse et tombe juste au moment du déclic. Dernière photo : l'écran du téléphone, avec B qui sourit et A étalé par terre.",
+  "Le gâteau. A pose son paquet de gâteaux sur une table et se retourne pour fouiller dans son sac. B en prend un et le croque. A se retourne et compte ses gâteaux, soupçonneux. B, l'air innocent, montre la fenêtre. A regarde la fenêtre, puis remarque la miette sur le menton de B.",
+  "La course. A et B se défient du regard et partent en courant vers un mur au bout du couloir ou du parking. B mène, A revient à sa hauteur. Juste avant l'arrivée, B s'arrête net : son lacet est défait et il tombe. A touche le mur le premier, puis revient aider B à se relever.",
+  "Le mot plié. A écrit quelques mots sur un papier, le plie et le glisse dans le sac de B sans être vu. Plus tard, B trouve le papier, le déplie et sourit. On ne voit jamais ce qui est écrit. B cherche du regard qui l'a mis. Il croise le regard de A, qui détourne les yeux, gêné."]},
+ a180:{n:"Action du 180°",items:["Une dispute au comptoir d'un café","Une partie d'échecs","Un vendeur et un client","Un interrogatoire","Une demande en mariage","Un échange de colis suspect","Un entretien d'embauche","Deux cowboys en duel","Un prof rend une copie","Une rupture au restaurant"]},
+ genre:{n:"Genre",items:["Polar","Comédie","Horreur","Western","Science-fiction","Romance","Film de casse","Film muet","Super-héros","Thriller"]},
+ lieu:{n:"Lieu",items:["Un ascenseur","Une cuisine","Un parking la nuit","Une salle de classe","Un château de la Loire","Une plage","Un supermarché","Une forêt","Un toit d'immeuble","Une laverie"]},
+ objet:{n:"Objet",items:["Un parapluie rouge","Une valise","Une lettre","Un réveil","Une clé","Un téléphone qui sonne","Une plante verte","Un masque","Un ballon","Une photo déchirée"]}
+};
+var SUJETS=["un éléphant","un grand-père","un lion","un avion","une girafe","un robot","un astronaute","un chevalier","un cow-boy","un dinosaure","une voiture de course","une danseuse","un pirate","une sorcière","une vache","un policier","un chat","un footballeur"];
+var CARDS={coup:{n:"Coup de fil",full:"Coup de fil au producteur",d:"3 minutes de conseil en privé avec le producteur."},doublure:{n:"Doublure",full:"Doublure",d:"Un camarade de ton choix t'aide pendant 5 minutes."},director:{n:"Director's cut",full:"Director's cut",d:"Choisir une contrainte au lieu de la tirer au sort."},associe:{n:"Prod. associé",full:"Producteur associé",d:"XP doublés sur un défi, à annoncer avant de commencer."},joker:{n:"Joker",full:"Joker",d:"Choisir son ordre de passage au festival et refaire une case de son projet après la réunion de production. Réservé au 1er du classement jeudi soir."}};
+var PRIZES=[["public","Prix du public","Pour avoir conquis la salle."],["producteur","Prix du producteur","Pour le film que le studio aurait voulu produire."],["audace","Prix de l'audace","Pour avoir osé ce que personne n'osait."],["progression","Prix de la meilleure progression","Pour le plus beau chemin parcouru depuis lundi."]];
+var VALEURS=["Plan de grand ensemble (PGE)","Plan d'ensemble / large (PE)","Plan moyen (PM)","Plan américain (PA)","Plan rapproché taille (PR)","Plan rapproché poitrine (PR)","Gros plan (GP)","Très gros plan (TGP)"];
+var VDESC=["Le décor domine, le personnage est minuscule ou absent","Le personnage et le lieu : on comprend où il est","En pied, il remplit la hauteur du cadre","Coupé à mi-cuisses","Coupé à la taille","Coupé à la poitrine","Le visage","Un détail du visage : un œil, une bouche"];
+var OBJ={"1-matin":"Comprendre qu'un storyboard raconte une histoire en images, lisible sans son auteur.","1-aprem":"Nommer les 8 valeurs de plan et choisir un cadre et un angle pour créer une émotion.","2-matin":"Respecter la règle des 180°, le champ-contrechamp et le raccord regard.","2-aprem":"Enchaîner les cases par des raccords et noter les mouvements de caméra.","3-matin":"Donner un rythme au storyboard : durée des cases, son, animatique.","3-aprem":"Construire une histoire de 45 s et la pitcher en 1 minute.","4-matin":"Produire seul un storyboard complet et son animatique.","4-aprem":"Présenter son film et évaluer ceux des autres avec une grille."};
+var RENDUS=["R1 · 6 cases","R2 · 3 émotions","R3 · Rendez-vous","R4 · Poursuite","R5 · Bon tempo","R6 · Pitch","R7 · Mercredi"];
+var CRITS=["Lisibilité","Audace","Langage ciné","Pitch"];
+
+/* Dessins des flashs (repris des diapos) */
+var SVG={"valeurs": ["<svg aria-label=\"Plan général : Tout le décor\" viewBox=\"-200 -180 800 400\" preserveAspectRatio=\"xMidYMid slice\"><rect x=\"-1000\" y=\"-1000\" width=\"3000\" height=\"3000\" fill=\"#FBFAF6\"/><circle cx=\"470\" cy=\"-70\" r=\"16\" fill=\"#F2B33D\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"-600\" y1=\"110\" x2=\"1000\" y2=\"110\" stroke=\"#9A9387\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"-170\" y=\"72\" width=\"60\" height=\"38\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M-176 72 L-140 46 L-104 72\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"-60\" y1=\"110\" x2=\"-60\" y2=\"84\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"-60\" cy=\"70\" r=\"16\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"20\" y=\"66\" width=\"70\" height=\"44\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M14 66 L55 38 L96 66\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"48\" y=\"86\" width=\"14\" height=\"24\" fill=\"#FBFAF6\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"330\" y1=\"110\" x2=\"330\" y2=\"82\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"330\" cy=\"66\" r=\"18\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"520\" y1=\"110\" x2=\"520\" y2=\"86\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"520\" cy=\"72\" r=\"15\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M192 110 L200 62 L208 110\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linejoin=\"round\" vector-effect=\"non-scaling-stroke\"/><line x1=\"200\" y1=\"29\" x2=\"200\" y2=\"62\" stroke=\"#1B1D22\" stroke-width=\"3\" vector-effect=\"non-scaling-stroke\"/><path d=\"M188 54 L200 36 L212 54\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linejoin=\"round\" vector-effect=\"non-scaling-stroke\"/><rect x=\"195\" y=\"28.6\" width=\"10\" height=\"3\" fill=\"#D2452F\" stroke=\"#1B1D22\" stroke-width=\"2\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"200\" cy=\"22\" r=\"7\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"3\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"197.6\" cy=\"21\" r=\"0.85\" fill=\"#1B1D22\"/><circle cx=\"202.4\" cy=\"21\" r=\"0.85\" fill=\"#1B1D22\"/><path d=\"M198 24.8 Q200 26.2 202 24.8\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"2\" vector-effect=\"non-scaling-stroke\"/><\/svg>", "<svg aria-label=\"Plan d’ensemble : Le perso dans son décor\" viewBox=\"0 -60 400 200\" preserveAspectRatio=\"xMidYMid slice\"><rect x=\"-1000\" y=\"-1000\" width=\"3000\" height=\"3000\" fill=\"#FBFAF6\"/><circle cx=\"470\" cy=\"-70\" r=\"16\" fill=\"#F2B33D\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"-600\" y1=\"110\" x2=\"1000\" y2=\"110\" stroke=\"#9A9387\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"-170\" y=\"72\" width=\"60\" height=\"38\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M-176 72 L-140 46 L-104 72\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"-60\" y1=\"110\" x2=\"-60\" y2=\"84\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"-60\" cy=\"70\" r=\"16\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"20\" y=\"66\" width=\"70\" height=\"44\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M14 66 L55 38 L96 66\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"48\" y=\"86\" width=\"14\" height=\"24\" fill=\"#FBFAF6\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"330\" y1=\"110\" x2=\"330\" y2=\"82\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"330\" cy=\"66\" r=\"18\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"520\" y1=\"110\" x2=\"520\" y2=\"86\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"520\" cy=\"72\" r=\"15\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M192 110 L200 62 L208 110\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linejoin=\"round\" vector-effect=\"non-scaling-stroke\"/><line x1=\"200\" y1=\"29\" x2=\"200\" y2=\"62\" stroke=\"#1B1D22\" stroke-width=\"3\" vector-effect=\"non-scaling-stroke\"/><path d=\"M188 54 L200 36 L212 54\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linejoin=\"round\" vector-effect=\"non-scaling-stroke\"/><rect x=\"195\" y=\"28.6\" width=\"10\" height=\"3\" fill=\"#D2452F\" stroke=\"#1B1D22\" stroke-width=\"2\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"200\" cy=\"22\" r=\"7\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"3\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"197.6\" cy=\"21\" r=\"0.85\" fill=\"#1B1D22\"/><circle cx=\"202.4\" cy=\"21\" r=\"0.85\" fill=\"#1B1D22\"/><path d=\"M198 24.8 Q200 26.2 202 24.8\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"2\" vector-effect=\"non-scaling-stroke\"/><\/svg>", "<svg aria-label=\"Plan moyen : De la tête aux pieds\" viewBox=\"96 9 208 104\" preserveAspectRatio=\"xMidYMid slice\"><rect x=\"-1000\" y=\"-1000\" width=\"3000\" height=\"3000\" fill=\"#FBFAF6\"/><circle cx=\"470\" cy=\"-70\" r=\"16\" fill=\"#F2B33D\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"-600\" y1=\"110\" x2=\"1000\" y2=\"110\" stroke=\"#9A9387\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"-170\" y=\"72\" width=\"60\" height=\"38\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M-176 72 L-140 46 L-104 72\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"-60\" y1=\"110\" x2=\"-60\" y2=\"84\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"-60\" cy=\"70\" r=\"16\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"20\" y=\"66\" width=\"70\" height=\"44\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M14 66 L55 38 L96 66\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"48\" y=\"86\" width=\"14\" height=\"24\" fill=\"#FBFAF6\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"330\" y1=\"110\" x2=\"330\" y2=\"82\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"330\" cy=\"66\" r=\"18\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"520\" y1=\"110\" x2=\"520\" y2=\"86\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"520\" cy=\"72\" r=\"15\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M192 110 L200 62 L208 110\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linejoin=\"round\" vector-effect=\"non-scaling-stroke\"/><line x1=\"200\" y1=\"29\" x2=\"200\" y2=\"62\" stroke=\"#1B1D22\" stroke-width=\"3\" vector-effect=\"non-scaling-stroke\"/><path d=\"M188 54 L200 36 L212 54\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linejoin=\"round\" vector-effect=\"non-scaling-stroke\"/><rect x=\"195\" y=\"28.6\" width=\"10\" height=\"3\" fill=\"#D2452F\" stroke=\"#1B1D22\" stroke-width=\"2\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"200\" cy=\"22\" r=\"7\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"3\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"197.6\" cy=\"21\" r=\"0.85\" fill=\"#1B1D22\"/><circle cx=\"202.4\" cy=\"21\" r=\"0.85\" fill=\"#1B1D22\"/><path d=\"M198 24.8 Q200 26.2 202 24.8\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"2\" vector-effect=\"non-scaling-stroke\"/><\/svg>", "<svg aria-label=\"Plan américain : Coupé à mi-cuisses\" viewBox=\"136 11 128 64\" preserveAspectRatio=\"xMidYMid slice\"><rect x=\"-1000\" y=\"-1000\" width=\"3000\" height=\"3000\" fill=\"#FBFAF6\"/><circle cx=\"470\" cy=\"-70\" r=\"16\" fill=\"#F2B33D\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"-600\" y1=\"110\" x2=\"1000\" y2=\"110\" stroke=\"#9A9387\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"-170\" y=\"72\" width=\"60\" height=\"38\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M-176 72 L-140 46 L-104 72\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"-60\" y1=\"110\" x2=\"-60\" y2=\"84\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"-60\" cy=\"70\" r=\"16\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"20\" y=\"66\" width=\"70\" height=\"44\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M14 66 L55 38 L96 66\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"48\" y=\"86\" width=\"14\" height=\"24\" fill=\"#FBFAF6\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"330\" y1=\"110\" x2=\"330\" y2=\"82\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"330\" cy=\"66\" r=\"18\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"520\" y1=\"110\" x2=\"520\" y2=\"86\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"520\" cy=\"72\" r=\"15\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M192 110 L200 62 L208 110\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linejoin=\"round\" vector-effect=\"non-scaling-stroke\"/><line x1=\"200\" y1=\"29\" x2=\"200\" y2=\"62\" stroke=\"#1B1D22\" stroke-width=\"3\" vector-effect=\"non-scaling-stroke\"/><path d=\"M188 54 L200 36 L212 54\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linejoin=\"round\" vector-effect=\"non-scaling-stroke\"/><rect x=\"195\" y=\"28.6\" width=\"10\" height=\"3\" fill=\"#D2452F\" stroke=\"#1B1D22\" stroke-width=\"2\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"200\" cy=\"22\" r=\"7\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"3\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"197.6\" cy=\"21\" r=\"0.85\" fill=\"#1B1D22\"/><circle cx=\"202.4\" cy=\"21\" r=\"0.85\" fill=\"#1B1D22\"/><path d=\"M198 24.8 Q200 26.2 202 24.8\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"2\" vector-effect=\"non-scaling-stroke\"/><\/svg>", "<svg aria-label=\"Plan rapproché taille : Coupé à la taille\" viewBox=\"148 11 104 52\" preserveAspectRatio=\"xMidYMid slice\"><rect x=\"-1000\" y=\"-1000\" width=\"3000\" height=\"3000\" fill=\"#FBFAF6\"/><circle cx=\"470\" cy=\"-70\" r=\"16\" fill=\"#F2B33D\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"-600\" y1=\"110\" x2=\"1000\" y2=\"110\" stroke=\"#9A9387\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"-170\" y=\"72\" width=\"60\" height=\"38\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M-176 72 L-140 46 L-104 72\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"-60\" y1=\"110\" x2=\"-60\" y2=\"84\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"-60\" cy=\"70\" r=\"16\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"20\" y=\"66\" width=\"70\" height=\"44\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M14 66 L55 38 L96 66\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"48\" y=\"86\" width=\"14\" height=\"24\" fill=\"#FBFAF6\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"330\" y1=\"110\" x2=\"330\" y2=\"82\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"330\" cy=\"66\" r=\"18\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"520\" y1=\"110\" x2=\"520\" y2=\"86\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"520\" cy=\"72\" r=\"15\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M192 110 L200 62 L208 110\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linejoin=\"round\" vector-effect=\"non-scaling-stroke\"/><line x1=\"200\" y1=\"29\" x2=\"200\" y2=\"62\" stroke=\"#1B1D22\" stroke-width=\"3\" vector-effect=\"non-scaling-stroke\"/><path d=\"M188 54 L200 36 L212 54\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linejoin=\"round\" vector-effect=\"non-scaling-stroke\"/><rect x=\"195\" y=\"28.6\" width=\"10\" height=\"3\" fill=\"#D2452F\" stroke=\"#1B1D22\" stroke-width=\"2\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"200\" cy=\"22\" r=\"7\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"3\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"197.6\" cy=\"21\" r=\"0.85\" fill=\"#1B1D22\"/><circle cx=\"202.4\" cy=\"21\" r=\"0.85\" fill=\"#1B1D22\"/><path d=\"M198 24.8 Q200 26.2 202 24.8\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"2\" vector-effect=\"non-scaling-stroke\"/><\/svg>", "<svg aria-label=\"Plan rapproché poitrine : Coupé à la poitrine\" viewBox=\"166 12 68 34\" preserveAspectRatio=\"xMidYMid slice\"><rect x=\"-1000\" y=\"-1000\" width=\"3000\" height=\"3000\" fill=\"#FBFAF6\"/><circle cx=\"470\" cy=\"-70\" r=\"16\" fill=\"#F2B33D\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"-600\" y1=\"110\" x2=\"1000\" y2=\"110\" stroke=\"#9A9387\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"-170\" y=\"72\" width=\"60\" height=\"38\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M-176 72 L-140 46 L-104 72\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"-60\" y1=\"110\" x2=\"-60\" y2=\"84\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"-60\" cy=\"70\" r=\"16\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"20\" y=\"66\" width=\"70\" height=\"44\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M14 66 L55 38 L96 66\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"48\" y=\"86\" width=\"14\" height=\"24\" fill=\"#FBFAF6\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"330\" y1=\"110\" x2=\"330\" y2=\"82\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"330\" cy=\"66\" r=\"18\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"520\" y1=\"110\" x2=\"520\" y2=\"86\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"520\" cy=\"72\" r=\"15\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M192 110 L200 62 L208 110\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linejoin=\"round\" vector-effect=\"non-scaling-stroke\"/><line x1=\"200\" y1=\"29\" x2=\"200\" y2=\"62\" stroke=\"#1B1D22\" stroke-width=\"3\" vector-effect=\"non-scaling-stroke\"/><path d=\"M188 54 L200 36 L212 54\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linejoin=\"round\" vector-effect=\"non-scaling-stroke\"/><rect x=\"195\" y=\"28.6\" width=\"10\" height=\"3\" fill=\"#D2452F\" stroke=\"#1B1D22\" stroke-width=\"2\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"200\" cy=\"22\" r=\"7\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"3\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"197.6\" cy=\"21\" r=\"0.85\" fill=\"#1B1D22\"/><circle cx=\"202.4\" cy=\"21\" r=\"0.85\" fill=\"#1B1D22\"/><path d=\"M198 24.8 Q200 26.2 202 24.8\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"2\" vector-effect=\"non-scaling-stroke\"/><\/svg>", "<svg aria-label=\"Gros plan : Le visage\" viewBox=\"182 13 36 18\" preserveAspectRatio=\"xMidYMid slice\"><rect x=\"-1000\" y=\"-1000\" width=\"3000\" height=\"3000\" fill=\"#FBFAF6\"/><circle cx=\"470\" cy=\"-70\" r=\"16\" fill=\"#F2B33D\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"-600\" y1=\"110\" x2=\"1000\" y2=\"110\" stroke=\"#9A9387\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"-170\" y=\"72\" width=\"60\" height=\"38\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M-176 72 L-140 46 L-104 72\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"-60\" y1=\"110\" x2=\"-60\" y2=\"84\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"-60\" cy=\"70\" r=\"16\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"20\" y=\"66\" width=\"70\" height=\"44\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M14 66 L55 38 L96 66\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"48\" y=\"86\" width=\"14\" height=\"24\" fill=\"#FBFAF6\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"330\" y1=\"110\" x2=\"330\" y2=\"82\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"330\" cy=\"66\" r=\"18\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"520\" y1=\"110\" x2=\"520\" y2=\"86\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"520\" cy=\"72\" r=\"15\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M192 110 L200 62 L208 110\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linejoin=\"round\" vector-effect=\"non-scaling-stroke\"/><line x1=\"200\" y1=\"29\" x2=\"200\" y2=\"62\" stroke=\"#1B1D22\" stroke-width=\"3\" vector-effect=\"non-scaling-stroke\"/><path d=\"M188 54 L200 36 L212 54\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linejoin=\"round\" vector-effect=\"non-scaling-stroke\"/><rect x=\"195\" y=\"28.6\" width=\"10\" height=\"3\" fill=\"#D2452F\" stroke=\"#1B1D22\" stroke-width=\"2\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"200\" cy=\"22\" r=\"7\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"3\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"197.6\" cy=\"21\" r=\"0.85\" fill=\"#1B1D22\"/><circle cx=\"202.4\" cy=\"21\" r=\"0.85\" fill=\"#1B1D22\"/><path d=\"M198 24.8 Q200 26.2 202 24.8\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"2\" vector-effect=\"non-scaling-stroke\"/><\/svg>", "<svg aria-label=\"Très gros plan : Un détail\" viewBox=\"194 17.5 12 6\" preserveAspectRatio=\"xMidYMid slice\"><rect x=\"-1000\" y=\"-1000\" width=\"3000\" height=\"3000\" fill=\"#FBFAF6\"/><circle cx=\"470\" cy=\"-70\" r=\"16\" fill=\"#F2B33D\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"-600\" y1=\"110\" x2=\"1000\" y2=\"110\" stroke=\"#9A9387\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"-170\" y=\"72\" width=\"60\" height=\"38\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M-176 72 L-140 46 L-104 72\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"-60\" y1=\"110\" x2=\"-60\" y2=\"84\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"-60\" cy=\"70\" r=\"16\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"20\" y=\"66\" width=\"70\" height=\"44\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M14 66 L55 38 L96 66\" fill=\"#ECE6D8\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><rect x=\"48\" y=\"86\" width=\"14\" height=\"24\" fill=\"#FBFAF6\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"330\" y1=\"110\" x2=\"330\" y2=\"82\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"330\" cy=\"66\" r=\"18\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><line x1=\"520\" y1=\"110\" x2=\"520\" y2=\"86\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"520\" cy=\"72\" r=\"15\" fill=\"#B9C9A3\" stroke=\"#1B1D22\" stroke-width=\"2.5\" vector-effect=\"non-scaling-stroke\"/><path d=\"M192 110 L200 62 L208 110\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linejoin=\"round\" vector-effect=\"non-scaling-stroke\"/><line x1=\"200\" y1=\"29\" x2=\"200\" y2=\"62\" stroke=\"#1B1D22\" stroke-width=\"3\" vector-effect=\"non-scaling-stroke\"/><path d=\"M188 54 L200 36 L212 54\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linejoin=\"round\" vector-effect=\"non-scaling-stroke\"/><rect x=\"195\" y=\"28.6\" width=\"10\" height=\"3\" fill=\"#D2452F\" stroke=\"#1B1D22\" stroke-width=\"2\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"200\" cy=\"22\" r=\"7\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"3\" vector-effect=\"non-scaling-stroke\"/><circle cx=\"197.6\" cy=\"21\" r=\"0.85\" fill=\"#1B1D22\"/><circle cx=\"202.4\" cy=\"21\" r=\"0.85\" fill=\"#1B1D22\"/><path d=\"M198 24.8 Q200 26.2 202 24.8\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"2\" vector-effect=\"non-scaling-stroke\"/><\/svg>"], "angles": ["<svg aria-label=\"Plongée : la caméra est placée au-dessus du personnage et s’incline vers le bas\" viewBox=\"0 0 400 240\"><rect x=\"0\" y=\"0\" width=\"400\" height=\"240\" fill=\"#FBFAF6\"/><line x1=\"0\" y1=\"220\" x2=\"400\" y2=\"220\" stroke=\"#9A9387\" stroke-width=\"2\"/><path d=\"M113.1 46.9 L323.0 93.5 L281.3 180.8 Z\" fill=\"#E8654C\" fill-opacity=\".12\"/><line x1=\"113.1\" y1=\"46.9\" x2=\"262\" y2=\"118\" stroke=\"#E8654C\" stroke-width=\"3\" stroke-dasharray=\"10 8\"/><line x1=\"80\" y1=\"50\" x2=\"50\" y2=\"220\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linecap=\"round\"/><line x1=\"84\" y1=\"50\" x2=\"86\" y2=\"220\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linecap=\"round\"/><line x1=\"90\" y1=\"50\" x2=\"120\" y2=\"220\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linecap=\"round\"/><g transform=\"translate(86 34) rotate(25.5)\"><rect x=\"-24\" y=\"-15\" width=\"40\" height=\"30\" rx=\"4\" fill=\"#1B1D22\"/><rect x=\"-18\" y=\"-23\" width=\"16\" height=\"8\" rx=\"2\" fill=\"#1B1D22\"/><path d=\"M16 -9 L32 -15 L32 15 L16 9 Z\" fill=\"#1B1D22\"/><\/g><path d=\"M250 220 L262 160 L274 220\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"4\" stroke-linejoin=\"round\"/><line x1=\"262\" y1=\"104\" x2=\"262\" y2=\"160\" stroke=\"#1B1D22\" stroke-width=\"4\"/><path d=\"M244 140 L262 112 L280 140\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"4\" stroke-linejoin=\"round\"/><circle cx=\"262\" cy=\"90\" r=\"14\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"4\"/><\/svg>", "<svg aria-label=\"Angle normal : la caméra est à hauteur des yeux du personnage, bien droite\" viewBox=\"0 0 400 240\"><rect x=\"0\" y=\"0\" width=\"400\" height=\"240\" fill=\"#FBFAF6\"/><line x1=\"0\" y1=\"220\" x2=\"400\" y2=\"220\" stroke=\"#9A9387\" stroke-width=\"2\"/><path d=\"M116.0 92.0 L307.0 47.9 L307.0 136.1 Z\" fill=\"#E8654C\" fill-opacity=\".12\"/><line x1=\"116.0\" y1=\"92.0\" x2=\"262\" y2=\"92\" stroke=\"#E8654C\" stroke-width=\"3\" stroke-dasharray=\"10 8\"/><line x1=\"82\" y1=\"108\" x2=\"56\" y2=\"220\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linecap=\"round\"/><line x1=\"86\" y1=\"108\" x2=\"86\" y2=\"220\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linecap=\"round\"/><line x1=\"90\" y1=\"108\" x2=\"116\" y2=\"220\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linecap=\"round\"/><g transform=\"translate(86 92) rotate(0.0)\"><rect x=\"-24\" y=\"-15\" width=\"40\" height=\"30\" rx=\"4\" fill=\"#1B1D22\"/><rect x=\"-18\" y=\"-23\" width=\"16\" height=\"8\" rx=\"2\" fill=\"#1B1D22\"/><path d=\"M16 -9 L32 -15 L32 15 L16 9 Z\" fill=\"#1B1D22\"/><\/g><path d=\"M250 220 L262 160 L274 220\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"4\" stroke-linejoin=\"round\"/><line x1=\"262\" y1=\"104\" x2=\"262\" y2=\"160\" stroke=\"#1B1D22\" stroke-width=\"4\"/><path d=\"M244 140 L262 112 L280 140\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"4\" stroke-linejoin=\"round\"/><circle cx=\"262\" cy=\"90\" r=\"14\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"4\"/><\/svg>", "<svg aria-label=\"Contre-plongée : la caméra est posée près du sol et s’incline vers le haut\" viewBox=\"0 0 400 240\"><rect x=\"0\" y=\"0\" width=\"400\" height=\"240\" fill=\"#FBFAF6\"/><line x1=\"0\" y1=\"220\" x2=\"400\" y2=\"220\" stroke=\"#9A9387\" stroke-width=\"2\"/><path d=\"M122.1 169.2 L277.4 26.8 L324.2 109.3 Z\" fill=\"#E8654C\" fill-opacity=\".12\"/><line x1=\"122.1\" y1=\"169.2\" x2=\"262\" y2=\"90\" stroke=\"#E8654C\" stroke-width=\"3\" stroke-dasharray=\"10 8\"/><line x1=\"92\" y1=\"196\" x2=\"70\" y2=\"220\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linecap=\"round\"/><line x1=\"100\" y1=\"196\" x2=\"122\" y2=\"220\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linecap=\"round\"/><g transform=\"translate(96 184) rotate(-29.5)\"><rect x=\"-24\" y=\"-15\" width=\"40\" height=\"30\" rx=\"4\" fill=\"#1B1D22\"/><rect x=\"-18\" y=\"-23\" width=\"16\" height=\"8\" rx=\"2\" fill=\"#1B1D22\"/><path d=\"M16 -9 L32 -15 L32 15 L16 9 Z\" fill=\"#1B1D22\"/><\/g><path d=\"M250 220 L262 160 L274 220\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"4\" stroke-linejoin=\"round\"/><line x1=\"262\" y1=\"104\" x2=\"262\" y2=\"160\" stroke=\"#1B1D22\" stroke-width=\"4\"/><path d=\"M244 140 L262 112 L280 140\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"4\" stroke-linejoin=\"round\"/><circle cx=\"262\" cy=\"90\" r=\"14\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"4\"/><\/svg>"], "a180": ["<svg aria-label=\"Vue de dessus : Alex à gauche, Sam à droite, une ligne passe par les deux. Toutes les caméras restent du même côté de la ligne ; l'autre côté est interdit.\" viewBox=\"0 0 480 300\"><rect x=\"0\" y=\"0\" width=\"480\" height=\"300\" fill=\"#FBFAF6\"/><rect x=\"0\" y=\"0\" width=\"480\" height=\"130\" fill=\"#F7D9D2\"/><path d=\"M0 20 L20 0 M0 60 L60 0 M0 100 L100 0 M20 130 L150 0 M60 130 L190 0 M100 130 L230 0 M140 130 L270 0 M180 130 L310 0 M220 130 L350 0 M260 130 L390 0 M300 130 L430 0 M340 130 L470 0 M380 130 L480 30 M420 130 L480 70 M460 130 L480 110\" stroke=\"#E8A898\" stroke-width=\"2\"/><rect x=\"0\" y=\"130\" width=\"480\" height=\"170\" fill=\"#DDEBD6\"/><line x1=\"10\" y1=\"130\" x2=\"470\" y2=\"130\" stroke=\"#C98A12\" stroke-width=\"5\" stroke-dasharray=\"14 8\"/><circle cx=\"170\" cy=\"130\" r=\"22\" fill=\"#F2B8AC\" stroke=\"#1B1D22\" stroke-width=\"4\"/><path d=\"M190 122 L204 130 L190 138\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linejoin=\"round\"/><circle cx=\"310\" cy=\"130\" r=\"22\" fill=\"#AFC6EE\" stroke=\"#1B1D22\" stroke-width=\"4\"/><path d=\"M290 122 L276 130 L290 138\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linejoin=\"round\"/><rect x=\"225\" y=\"250\" width=\"30\" height=\"22\" rx=\"3\" fill=\"#1B1D22\"/><path d=\"M232 250 L240 236 L248 250 Z\" fill=\"#1B1D22\"/><g transform=\"rotate(-115 355 225)\"><rect x=\"340\" y=\"214\" width=\"30\" height=\"22\" rx=\"3\" fill=\"#1B1D22\"/><path d=\"M370 219 L382 213 L382 237 L370 231 Z\" fill=\"#1B1D22\"/><\/g><g transform=\"rotate(-65 125 225)\"><rect x=\"110\" y=\"214\" width=\"30\" height=\"22\" rx=\"3\" fill=\"#1B1D22\"/><path d=\"M140 219 L152 213 L152 237 L140 231 Z\" fill=\"#1B1D22\"/><\/g><rect x=\"225\" y=\"40\" width=\"30\" height=\"22\" rx=\"3\" fill=\"#B4442F\"/><line x1=\"214\" y1=\"30\" x2=\"266\" y2=\"72\" stroke=\"#B4442F\" stroke-width=\"6\"/><line x1=\"266\" y1=\"30\" x2=\"214\" y2=\"72\" stroke=\"#B4442F\" stroke-width=\"6\"/><\/svg>"], "regard": ["<svg aria-label=\"Champ : Alex à gauche de l'image regarde vers la droite\" viewBox=\"0 0 160 90\"><rect x=\"0\" y=\"0\" width=\"160\" height=\"90\" fill=\"#FBFAF6\"/><path d=\"M28 90 L34 62 Q56 56 78 62 L84 90\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"2\"/><rect x=\"44\" y=\"55\" width=\"24\" height=\"6\" fill=\"#D2452F\" stroke=\"#1B1D22\" stroke-width=\"1\"/><circle cx=\"56\" cy=\"40\" r=\"16\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"2\"/><path d=\"M71 36 L78 41 L71 45\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/><circle cx=\"64\" cy=\"37\" r=\"1.8\" fill=\"#1B1D22\"/><path d=\"M90 40 L130 40\" stroke=\"#C98A12\" stroke-width=\"2\" stroke-dasharray=\"4 3\"/><path d=\"M126 36 L132 40 L126 44\" fill=\"none\" stroke=\"#C98A12\" stroke-width=\"2\"/><\/svg>", "<svg aria-label=\"Contrechamp correct : Sam à droite de l'image regarde vers la gauche\" viewBox=\"0 0 160 90\"><rect x=\"0\" y=\"0\" width=\"160\" height=\"90\" fill=\"#FBFAF6\"/><path d=\"M76 90 L82 62 Q104 56 126 62 L132 90\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"2\"/><rect x=\"92\" y=\"55\" width=\"24\" height=\"6\" fill=\"#2F6BD2\" stroke=\"#1B1D22\" stroke-width=\"1\"/><circle cx=\"104\" cy=\"40\" r=\"16\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"2\"/><path d=\"M89 36 L82 41 L89 45\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/><circle cx=\"96\" cy=\"37\" r=\"1.8\" fill=\"#1B1D22\"/><path d=\"M70 40 L30 40\" stroke=\"#C98A12\" stroke-width=\"2\" stroke-dasharray=\"4 3\"/><path d=\"M34 36 L28 40 L34 44\" fill=\"none\" stroke=\"#C98A12\" stroke-width=\"2\"/><\/svg>", "<svg aria-label=\"Contrechamp faux : Sam regarde aussi vers la droite, les regards ne se croisent pas\" viewBox=\"0 0 160 90\"><rect x=\"0\" y=\"0\" width=\"160\" height=\"90\" fill=\"#FBFAF6\"/><path d=\"M28 90 L34 62 Q56 56 78 62 L84 90\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"2\"/><rect x=\"44\" y=\"55\" width=\"24\" height=\"6\" fill=\"#2F6BD2\" stroke=\"#1B1D22\" stroke-width=\"1\"/><circle cx=\"56\" cy=\"40\" r=\"16\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"2\"/><path d=\"M71 36 L78 41 L71 45\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/><circle cx=\"64\" cy=\"37\" r=\"1.8\" fill=\"#1B1D22\"/><line x1=\"112\" y1=\"18\" x2=\"148\" y2=\"54\" stroke=\"#B4442F\" stroke-width=\"4\"/><line x1=\"148\" y1=\"18\" x2=\"112\" y2=\"54\" stroke=\"#B4442F\" stroke-width=\"4\"/><\/svg>"], "mouv": ["<svg aria-label=\"Panoramique : une flèche orange en arc au-dessus du cadre, la caméra pivote\" viewBox=\"0 0 160 90\"><rect x=\"0\" y=\"0\" width=\"160\" height=\"90\" fill=\"#FBFAF6\"/><rect x=\"20\" y=\"22\" width=\"120\" height=\"60\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"2\"/><circle cx=\"60\" cy=\"48\" r=\"6\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"1.6\"/><path d=\"M60 54 L60 70 M54 78 L60 70 L66 78 M53 62 L67 62\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"1.6\"/><path d=\"M36 16 Q80 2 124 16\" fill=\"none\" stroke=\"#E07A1F\" stroke-width=\"3\"/><path d=\"M118 10 L126 17 L116 20\" fill=\"none\" stroke=\"#E07A1F\" stroke-width=\"3\" stroke-linejoin=\"round\"/><\/svg>", "<svg aria-label=\"Travelling avant : grosses flèches orange en perspective sur les côtés de l'image, vers le fond\" viewBox=\"0 0 160 90\"><rect x=\"0\" y=\"0\" width=\"160\" height=\"90\" fill=\"#FBFAF6\"/><rect x=\"20\" y=\"15\" width=\"120\" height=\"60\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"2\"/><circle cx=\"80\" cy=\"34\" r=\"4.5\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"1.4\"/><path d=\"M80 38.5 L80 50 M76 56 L80 50 L84 56 M75 44 L85 44\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"1.4\"/><polygon points=\"37.8,74.6 51.5,59.3 53.4,61.6 58,50 45.8,52.4 47.7,54.7 30.2,65.4\" fill=\"#E07A1F\" stroke=\"#1B1D22\" stroke-width=\"1\" stroke-linejoin=\"round\"/><polygon points=\"122.2,74.6 108.5,59.3 106.6,61.6 102,50 114.2,52.4 112.3,54.7 129.8,65.4\" fill=\"#E07A1F\" stroke=\"#1B1D22\" stroke-width=\"1\" stroke-linejoin=\"round\"/><\/svg>", "<svg aria-label=\"Travelling avant ou zoom : un petit cadre dans le grand et quatre flèches orange vers l'intérieur\" viewBox=\"0 0 160 90\"><rect x=\"0\" y=\"0\" width=\"160\" height=\"90\" fill=\"#FBFAF6\"/><rect x=\"20\" y=\"15\" width=\"120\" height=\"60\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"2\"/><rect x=\"56\" y=\"33\" width=\"48\" height=\"24\" fill=\"none\" stroke=\"#E07A1F\" stroke-width=\"2\" stroke-dasharray=\"4 3\"/><circle cx=\"80\" cy=\"42\" r=\"5\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"1.6\"/><line x1=\"80\" y1=\"47\" x2=\"80\" y2=\"57\" stroke=\"#1B1D22\" stroke-width=\"1.6\"/><path d=\"M26 20 L50 30 M134 20 L110 30 M26 70 L50 60 M134 70 L110 60\" stroke=\"#E07A1F\" stroke-width=\"2.6\"/><path d=\"M44 31 L52 31 L48 25\" fill=\"none\" stroke=\"#E07A1F\" stroke-width=\"2\" stroke-linejoin=\"round\"/><path d=\"M116 31 L108 31 L112 25\" fill=\"none\" stroke=\"#E07A1F\" stroke-width=\"2\" stroke-linejoin=\"round\"/><path d=\"M44 59 L52 59 L48 65\" fill=\"none\" stroke=\"#E07A1F\" stroke-width=\"2\" stroke-linejoin=\"round\"/><path d=\"M116 59 L108 59 L112 65\" fill=\"none\" stroke=\"#E07A1F\" stroke-width=\"2\" stroke-linejoin=\"round\"/><\/svg>", "<svg aria-label=\"Mouvement du personnage : une flèche noire dans l'image, devant le personnage qui court\" viewBox=\"0 0 160 90\"><rect x=\"0\" y=\"0\" width=\"160\" height=\"90\" fill=\"#FBFAF6\"/><rect x=\"20\" y=\"15\" width=\"120\" height=\"60\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"2\"/><circle cx=\"54\" cy=\"34\" r=\"6\" fill=\"#FFFFFF\" stroke=\"#1B1D22\" stroke-width=\"1.6\"/><path d=\"M54 40 L52 56 M44 68 L52 56 L62 66 M46 46 L62 44\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"1.6\"/><line x1=\"70\" y1=\"50\" x2=\"122\" y2=\"50\" stroke=\"#1B1D22\" stroke-width=\"3\"/><path d=\"M114 44 L123 50 L114 56\" fill=\"none\" stroke=\"#1B1D22\" stroke-width=\"3\" stroke-linejoin=\"round\"/><\/svg>"]};
+/* Raccords piégés */
+var PIEGES=(function(){
+var PEN="#1B1D22",SOFT="#9A9387",COL={red:"#D2452F",blue:"#2F6BD2",green:"#2E9B57",white:"#FFFFFF",yellow:"#E8B422"};
+
+/* --- Primitives de dessin (viewBox 160 x 90) --- */
+function ln(x1,y1,x2,y2,w,c){return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+(c||PEN)+'" stroke-width="'+(w||1.6)+'" stroke-linecap="round"/>'}
+function rect(x,y,w,h,f,s,sw){return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+(f||"none")+'" stroke="'+(s||PEN)+'" stroke-width="'+(sw||1.4)+'"/>'}
+function circ(x,y,r,f,s,sw){return '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+(f||"#fff")+'" stroke="'+(s||PEN)+'" stroke-width="'+(sw||1.6)+'"/>'}
+function floor(y){return ln(0,y,160,y,1,SOFT)}
+
+/* Tête avec regard : le nez et l'œil indiquent la direction (dir = 1 droite, -1 gauche) */
+function head(x,y,r,dir,o){
+  o=o||{};var s="";
+  s+=circ(x,y,r,"#fff",PEN,r>12?2.2:1.6);
+  s+='<path d="M'+(x+dir*r*0.92)+' '+(y-r*0.12)+' L'+(x+dir*r*1.28)+' '+(y+r*0.1)+' L'+(x+dir*r*0.9)+' '+(y+r*0.25)+'" fill="#fff" stroke="'+PEN+'" stroke-width="'+(r>12?2:1.4)+'" stroke-linejoin="round"/>';
+  s+='<circle cx="'+(x+dir*r*0.45)+'" cy="'+(y-r*0.18)+'" r="'+Math.max(1,r*0.12)+'" fill="'+PEN+'"/>';
+  if(o.hat){s+=rect(x-r*0.75,y-r*1.55,r*1.5,r*0.75,PEN,PEN,1)+ln(x-r*1.15,y-r*0.82,x+r*1.15,y-r*0.82,r>12?3:2)}
+  if(o.scarf){s+=rect(x-r*0.8,y+r*0.85,r*1.6,r*0.42,COL[o.scarf],PEN,1)}
+  return s;
+}
+/* Personnage en pied : pieds en (x,y), hauteur h */
+function fig(x,y,h,dir,o){
+  o=o||{};var r=h*0.13,hy=y-h+r,ny=hy+r,hip=y-h*0.42,s="";
+  var sit=o.sit;
+  s+=head(x,hy,r,dir,o);
+  s+=ln(x,ny,x,hip,1.6);
+  var run=o.run;
+  // bras
+  var ay=ny+h*0.12;
+  if(run){s+=ln(x,ay,x+dir*h*0.22,ay-h*0.08)+ln(x,ay,x-dir*h*0.2,ay+h*0.1)}
+  else{s+=ln(x,ay,x-h*0.16,ay+h*0.2)+ln(x,ay,x+h*0.16,ay+h*0.2)}
+  // jambes
+  if(sit){s+=ln(x,hip,x+dir*h*0.22,hip)+ln(x+dir*h*0.22,hip,x+dir*h*0.22,y)}
+  else if(run){s+=ln(x,hip,x+dir*h*0.2,y-h*0.08)+ln(x,hip,x-dir*h*0.16,y)}
+  else{s+=ln(x,hip,x-h*0.1,y)+ln(x,hip,x+h*0.1,y)}
+  // objet tenu : side "l" ou "r" = côté de l'image
+  if(o.hold){var hx=x+(o.hold.side==="l"?-1:1)*h*0.17,hy2=ay+h*0.21;s+=item(o.hold.kind,hx,hy2,h*0.12,o.hold.color)}
+  return s;
+}
+function item(kind,x,y,k,color){
+  if(kind==="letter")return rect(x-k*0.7,y-k*0.45,k*1.4,k*0.9,COL[color||"white"],PEN,1)+ln(x-k*0.7,y-k*0.45,x,y,0.8)+ln(x+k*0.7,y-k*0.45,x,y,0.8);
+  if(kind==="case")return rect(x-k*0.8,y-k*0.2,k*1.6,k*1.1,COL[color||"yellow"],PEN,1.2)+ln(x-k*0.3,y-k*0.2,x-k*0.3,y-k*0.5,1)+ln(x+k*0.3,y-k*0.2,x+k*0.3,y-k*0.5,1)+ln(x-k*0.3,y-k*0.5,x+k*0.3,y-k*0.5,1);
+  if(kind==="cup")return rect(x-k*0.35,y-k*0.5,k*0.7,k*0.8,COL[color||"white"],PEN,1.1);
+  return "";
+}
+function table(x,y,w){return ln(x-w/2,y,x+w/2,y,2)+ln(x-w/2+4,y,x-w/2+4,y+14,1.4)+ln(x+w/2-4,y,x+w/2-4,y+14,1.4)}
+function chair(x,y,dir){return ln(x,y,x,y-10,1.2,SOFT)+ln(x,y-10,x+dir*8,y-10,1.2,SOFT)+ln(x-dir*0,y-22,x,y-10,1.2,SOFT)}
+function door(x,y,h){h=h||66;var w=h*0.42;return rect(x,y-h,w,h,"none",PEN,1.6)+circ(x+w*0.8,y-h/2,1.4,PEN,PEN,1)}
+function windowSky(x,y,night){return rect(x,y,30,22,night?"#2C3550":"#CFE6F7",PEN,1.4)+(night?circ(x+21,y+7,3.4,"#F4EFD8",PEN,0.8):circ(x+9,y+8,4,"#F2C84B",PEN,0.8))+ln(x+15,y,x+15,y+22,1)}
+/* Gros plan : tête et épaules occupant le cadre */
+function closeup(x,dir,o){o=o||{};var s="";s+='<path d="M'+(x-46)+' 90 Q'+(x-42)+' 76 '+x+' 74 Q'+(x+42)+' 76 '+(x+46)+' 90" fill="#fff" stroke="'+PEN+'" stroke-width="2"/>';if(o.scarf)s+=rect(x-24,70,48,9,COL[o.scarf],PEN,1.2);s+=head(x,40,30,dir,{hat:o.hat});return s}
+/* Plan rapproché : buste */
+function medium(x,dir,o){o=o||{};var s="";s+='<path d="M'+(x-30)+' 90 L'+(x-24)+' 58 Q'+x+' 52 '+(x+24)+' 58 L'+(x+30)+' 90" fill="#fff" stroke="'+PEN+'" stroke-width="1.8"/>';if(o.scarf)s+=rect(x-15,51,30,7,COL[o.scarf],PEN,1.1);s+=head(x,34,15,dir,{hat:o.hat});if(o.hold){var hx=x+(o.hold.side==="l"?-22:22);s+=item(o.hold.kind,hx,74,13,o.hold.color)}return s}
+function insertLetter(color){return rect(30,18,100,58,COL[color||"white"],PEN,2.2)+ln(30,18,80,52,1.4)+ln(130,18,80,52,1.4)+'<path d="M95 70 q 18 -8 30 6" fill="none" stroke="'+PEN+'" stroke-width="1.4"/>'}
+function speed(x,y,dir){return ln(x,y,x-dir*14,y,1,SOFT)+ln(x,y+6,x-dir*10,y+6,1,SOFT)}
+
+function svg(inner,marks){
+  var m="";(marks||[]).forEach(function(k){m+='<g class="mark"><circle cx="'+k.x+'" cy="'+k.y+'" r="'+(k.r||12)+'"/><rect x="'+(k.x+(k.r||12)-4)+'" y="'+(k.y-(k.r||12)-6)+'" width="11" height="11" rx="5.5"/><text x="'+(k.x+(k.r||12)+1.5)+'" y="'+(k.y-(k.r||12)+2.4)+'" text-anchor="middle">'+k.n+'</text></g>'});
+  return '<svg viewBox="0 0 160 90" role="img">'+inner+m+'</svg>';
+}
+
+/* --- Les 6 planches --- */
+var P=[
+ {t:"Le rendez-vous",tag:"Axe des 180°",brief:"Alex (écharpe rouge) et Sam (écharpe bleue) se retrouvent à une table de café.",cases:[
+  {c:"Plan d'ensemble · Alex à gauche, Sam à droite",d:floor(80)+chair(30,80,1)+chair(130,80,-1)+table(80,62,46)+fig(38,80,40,1,{sit:true,scarf:"red"})+fig(122,80,40,-1,{sit:true,scarf:"blue"})+item("cup",72,60,10)},
+  {c:"Plan rapproché · Alex parle",d:medium(60,1,{scarf:"green"}),m:[{n:1,x:60,y:55,r:16}]},
+  {c:"Plan rapproché · Sam répond",d:medium(100,-1,{scarf:"blue"})},
+  {c:"Plan rapproché · Sam se fâche",d:medium(60,1,{scarf:"blue"}),m:[{n:2,x:60,y:40,r:26}]}],
+  a:["L'écharpe d'Alex passe du rouge au vert : faux raccord de costume.","Sam se retrouve à gauche de l'image et regarde vers la droite. La caméra a franchi l'axe des 180° : on a l'impression que Sam tourne le dos à Alex."]},
+ {t:"La dispute",tag:"Raccord regard",brief:"Deux colocataires se disputent de part et d'autre d'une table.",cases:[
+  {c:"Plan d'ensemble · Léa à gauche, Tom à droite",d:floor(80)+table(80,58,50)+fig(42,80,44,1,{})+fig(118,80,44,-1,{})+item("cup",92,56,10,"white")},
+  {c:"Gros plan · Léa accuse",d:closeup(70,1,{})},
+  {c:"Gros plan · Tom répond",d:closeup(90,1,{}),m:[{n:1,x:118,y:40,r:18}]},
+  {c:"Plan d'ensemble · Léa quitte la table",d:floor(80)+table(80,58,50)+fig(30,80,44,-1,{})+fig(118,80,44,-1,{})+item("cup",66,56,10,"white"),m:[{n:2,x:66,y:52,r:9}]}],
+  a:["Tom regarde vers la droite, comme Léa. Les deux semblent regarder dans la même direction au lieu de se faire face : Tom doit regarder vers la gauche.","La tasse a changé de côté de la table entre les deux plans d'ensemble."]},
+ {t:"La lettre",tag:"Continuité d'un objet",brief:"Nina reçoit une lettre mystérieuse et l'ouvre.",cases:[
+  {c:"Plan moyen · Nina tient la lettre",d:floor(84)+fig(80,84,66,1,{hold:{kind:"letter",side:"r",color:"white"}})},
+  {c:"Insert · la lettre",d:insertLetter("white")},
+  {c:"Plan rapproché · Nina hésite",d:medium(80,1,{hold:{kind:"letter",side:"l",color:"white"}}),m:[{n:1,x:58,y:74,r:13}]},
+  {c:"Plan rapproché · elle ouvre",d:medium(80,1,{hold:{kind:"letter",side:"r",color:"red"}}),m:[{n:2,x:102,y:74,r:13}]}],
+  a:["La lettre change de main : elle est à droite de l'image en case 1, à gauche en case 3, de nouveau à droite en case 4.","La lettre blanche devient rouge."]},
+ {t:"La poursuite",tag:"Raccord de direction",brief:"Un voleur (chapeau noir) fuit, une policière le poursuit dans la rue.",cases:[
+  {c:"Plan d'ensemble · la course",d:floor(82)+fig(110,82,34,1,{run:true,hat:true})+speed(100,60,1)+fig(48,82,34,1,{run:true})+speed(38,60,1)},
+  {c:"Plan moyen · le voleur",d:floor(86)+fig(80,86,70,1,{run:true,hat:true})+speed(60,40,1)},
+  {c:"Plan moyen · la policière",d:floor(86)+fig(80,86,70,-1,{run:true})+speed(100,40,-1),m:[{n:1,x:80,y:42,r:30}]},
+  {c:"Plan d'ensemble · elle gagne du terrain",d:floor(82)+fig(118,82,34,1,{run:true})+fig(70,82,34,1,{run:true,hat:true}),m:[{n:2,x:96,y:62,r:30}]}],
+  a:["La policière court de droite à gauche alors que tout le monde va de gauche à droite : on croit qu'elle court vers le voleur, ou qu'elle part dans l'autre sens.","La policière est passée devant le voleur sans qu'on voie le dépassement : les positions sont inversées entre les deux plans d'ensemble."]},
+ {t:"Le chapeau",tag:"Continuité : costume et lumière",brief:"Un détective attend dans son bureau, en plein après-midi. Toute la scène dure une minute.",cases:[
+  {c:"Plan d'ensemble · le bureau, en journée",d:floor(82)+windowSky(112,14,false)+chair(70,82,1)+fig(78,82,48,1,{sit:true,hat:true})+table(110,64,30)},
+  {c:"Plan rapproché · il tend l'oreille",d:medium(80,1,{}),m:[{n:1,x:80,y:20,r:14}]},
+  {c:"Gros plan · il se tourne vers la porte, hors champ",d:closeup(80,1,{hat:true})},
+  {c:"Plan d'ensemble · quelqu'un frappe",d:floor(82)+windowSky(112,14,true)+chair(70,82,1)+fig(78,82,48,1,{sit:true,hat:true})+table(110,64,30),m:[{n:2,x:127,y:25,r:17}]}],
+  a:["Le chapeau a disparu dans le plan rapproché, puis revient.","Il fait nuit par la fenêtre alors que la scène se passe en journée, sans ellipse annoncée."]},
+ {t:"Le départ",tag:"Règle des 30° et raccords",brief:"Max (écharpe rouge) quitte la maison avec sa valise. La porte est à droite.",cases:[
+  {c:"Plan d'ensemble · Max devant la porte",d:floor(84)+door(118,84)+fig(70,84,52,1,{scarf:"red",hold:{kind:"case",side:"l"}})},
+  {c:"Plan d'ensemble · Max avance d'un pas",d:floor(84)+door(118,84)+fig(76,84,52,1,{scarf:"red",hold:{kind:"case",side:"l"}}),m:[{n:1,x:80,y:50,r:34}]},
+  {c:"Gros plan · Max regarde la porte",d:closeup(80,1,{scarf:"blue"}),m:[{n:2,x:80,y:74,r:16}]},
+  {c:"Plan moyen · Max ouvre la porte",d:floor(86)+door(108,86,84)+fig(92,86,68,1,{scarf:"red"}),m:[{n:3,x:80,y:70,r:13}]}],
+  a:["Même valeur de plan et presque le même cadre qu'à la case 1 : c'est une saute. Règle des 30° : entre deux plans du même sujet, on change nettement d'angle (au moins 30°) ou de valeur de plan.","L'écharpe de Max passe du rouge au bleu dans le gros plan.","La valise a disparu."]}
+];
+
+
+return {P:P,svg:svg};
+})();
+
+/* =================== FLASHS (diapos intégrées) =================== */
+var MOUV_TRAV='<svg viewBox="0 0 160 90" aria-label="Travelling avant : grosses flèches orange en perspective sur les côtés de l image, vers le fond"><rect x="0" y="0" width="160" height="90" fill="#FBFAF6"/><rect x="20" y="15" width="120" height="60" fill="#FFFFFF" stroke="#1B1D22" stroke-width="2"/><circle cx="80" cy="34" r="4.5" fill="#FFFFFF" stroke="#1B1D22" stroke-width="1.4"/><path d="M80 38.5 L80 50 M76 56 L80 50 L84 56 M75 44 L85 44" fill="none" stroke="#1B1D22" stroke-width="1.4"/><polygon points="37.8,74.6 51.5,59.3 53.4,61.6 58,50 45.8,52.4 47.7,54.7 30.2,65.4" fill="#E07A1F" stroke="#1B1D22" stroke-width="1" stroke-linejoin="round"/><polygon points="122.2,74.6 108.5,59.3 106.6,61.6 102,50 114.2,52.4 112.3,54.7 129.8,65.4" fill="#E07A1F" stroke="#1B1D22" stroke-width="1" stroke-linejoin="round"/></svg>';
+function eye(t){return '<div class="s-eye">'+t+'</div>'}
+function card(k,h,p){return '<div class="s-card">'+(k?'<span class="k">'+k+'</span>':'')+'<h3>'+h+'</h3><p>'+p+'</p></div>'}
+function fig(svg,b,s,cls){return '<div class="s-fig '+(cls||'')+'">'+svg+'<b>'+b+'</b>'+(s?'<span>'+s+'</span>':'')+'</div>'}
+var FLASHES=[
+ {t:"Un storyboard, c'est quoi ?",s:[
+  function(){return eye("Flash 1 · Un storyboard, c'est quoi ?")+'<h2 class="s-h">Le film, avant le film</h2><p class="s-lead">Une suite de cases dessinées qui montre chaque plan du film, dans l\'ordre.</p><div class="s-grid" style="grid-template-columns:repeat(3,1fr)">'+card("1","Penser","On teste ses idées avant de tourner.")+card("2","Partager","Toute l'équipe voit le même film dans sa tête.")+card("3","Économiser","Une case ratée coûte un coup de gomme. Un plan raté coûte une journée de tournage.")+'</div>'},
+  function(){return eye("Flash 1 · Un storyboard, c'est quoi ?")+'<h2 class="s-h">Deux storyboards, deux usages</h2><div class="s-grid" style="grid-template-columns:1fr 1fr">'+card("Ce matin","Le storyboard de concept","Il vend une idée et une ambiance. Peu de cases, aucune info technique. C\'est ce que vous faites aujourd\'hui.")+card("Pas à pas jusqu\'à vendredi","Le storyboard de production","Il sert à l\'équipe de tournage : numéro de plan (1.1, 1.2…), valeur, mouvement, durée, action, son. Vous l\'apprendrez brique par brique.")+'</div>'},
+  function(){var ex=(S.media&&S.media.ex)||[];var h=eye("Flash 1 · Un storyboard, c'est quoi ?")+'<h2 class="s-h">Sur le papier, puis à l\'écran</h2>';
+   if(ex.length>=2)h+='<div class="s-pair"><figure><img src="'+blob(ex[0])+'" alt="La planche"><figcaption>La planche</figcaption></figure><figure><img src="'+blob(ex[1])+'" alt="Le film fini"><figcaption>Le film fini</figcaption></figure></div>';
+   else h+='<div class="s-ph">Ajoute une planche puis l\'image du film dans l\'onglet Écran, mode Exemples.</div>';return h},
+  function(){return {cls:"accent",h:eye("La règle d'or du studio")+'<h2 class="s-big">Un storyboard se lit sans son auteur.</h2><p class="s-lead">On juge la clarté, pas le coup de crayon.</p>'}}]},
+ {t:"Le cadre",s:[
+  function(){var h=eye("Flash 2 · Le cadre")+'<h2 class="s-h">Les 8 valeurs de plan</h2><div class="s-grid" style="grid-template-columns:repeat(4,1fr)">';SVG.valeurs.forEach(function(s,i){h+=fig(s,(i+1)+". "+VALEURS[i],VDESC[i])});return h+'</div><p class="s-lead" style="font-size:1.6cqw">Insert : un gros plan sur un objet (une lettre, une montre).</p>'},
+  function(){return eye("Flash 2 · Le cadre")+'<h2 class="s-h">L\'angle change le personnage</h2><div class="s-grid" style="grid-template-columns:repeat(3,1fr)">'+fig(SVG.angles[0],"Plongée","La caméra regarde d'en haut : le personnage paraît souvent petit, fragile.")+fig(SVG.angles[1],"Angle normal","À hauteur des yeux : d'égal à égal.")+fig(SVG.angles[2],"Contre-plongée","La caméra regarde d'en bas : le personnage paraît souvent grand, puissant.")+'</div>'}]},
+ {t:"Le 180°",s:[
+  function(){return eye("Flash 3 · Continuité")+'<h2 class="s-h">La règle des 180°</h2><div class="s-grid" style="grid-template-columns:1.25fr 1fr;align-items:center">'+'<div class="s-fig">'+SVG.a180[0]+'</div><div style="display:flex;flex-direction:column;gap:1.6cqw;font-size:2cqw;line-height:1.3"><p style="margin:0">Une ligne imaginaire relie Alex (rouge) et Sam (bleu).</p><p style="margin:0">Toutes les caméras restent <b>du même côté</b>.</p><p style="margin:0">Franchir la ligne inverse gauche et droite : le spectateur est perdu.</p><p style="margin:0;color:var(--muted);font-size:1.4cqw">Zone verte : autorisée. Zone hachurée : interdite.</p></div></div>'},
+  function(){return eye("Flash 3 · Continuité")+'<h2 class="s-h">Champ, contrechamp, raccord regard</h2><div class="s-grid" style="grid-template-columns:repeat(3,1fr)">'+fig(SVG.regard[0],"Champ","Alex, à gauche, regarde vers la droite.")+fig(SVG.regard[1],"Contrechamp juste","Sam, à droite, regarde vers la gauche : ils se font face.","ok")+fig(SVG.regard[2],"Contrechamp faux","Sam regarde aussi vers la droite : on croit qu'ils regardent ailleurs.","ko")+'</div>'},
+  function(){return eye("Flash 3 · Continuité")+'<h2 class="s-h">Ce qui doit rester vrai d\'une case à l\'autre</h2><div class="s-grid" style="grid-template-columns:repeat(3,1fr)">'+card("","Direction","Un personnage qui sort à droite du cadre entre par la gauche dans le plan suivant. Dans une poursuite, tout le monde court dans le même sens.")+card("","Continuité","Costume, objet, lumière : l\'écharpe rouge reste rouge, la lettre reste dans la même main, le jour reste le jour.")+card("","Règle des 30°","Deux plans du même sujet à la suite : changez d\'angle d\'au moins 30° ou de valeur de plan. Sinon, l\'image « saute ».")+'</div>'}]},
+ {t:"Les cases se répondent",s:[
+  function(){return eye("Flash 4 · Les cases se répondent")+'<h2 class="s-h">Quatre façons de relier deux cases</h2><div class="s-grid" style="grid-template-columns:1fr 1fr">'+card("","Mouvement","Le geste commence dans un plan et se termine dans le suivant. On coupe pendant l\'action.")+card("","Regard","Un personnage regarde hors champ : le plan suivant montre ce qu\'il voit. Le spectateur relie les deux images.")+card("","Objet","Un objet passe d\'une case à l\'autre, parfois d\'un lieu à un autre : une balle lancée ici, rattrapée ailleurs.")+card("","Son","On entend le plan suivant avant de le voir, ou un son continue par-dessus la coupe.")+'</div>'}]},
+ {t:"Faire bouger la caméra",s:[
+  function(){return eye("Flash 5 · Les mouvements")+'<h2 class="s-h">Flèches orange : la caméra. Flèches noires : le personnage.</h2><div class="s-grid" style="grid-template-columns:repeat(4,1fr)">'+fig(SVG.mouv[0],"Panoramique","La caméra pivote sur place. Flèche en arc au-dessus du cadre.")+fig(MOUV_TRAV,"Travelling avant","La caméra avance. Grosses flèches en perspective sur les côtés.")+fig(SVG.mouv[2],"Zoom avant","La caméra ne bouge pas, l\'objectif resserre. Flèches des coins vers le cadre final.")+fig(SVG.mouv[3],"Personnage","Il bouge dans l\'image. Flèche noire dans le cadre.")+'</div><p class="s-lead" style="font-size:1.6cqw">Travelling latéral : la caméra suit le personnage sur le côté, grosse flèche orange sous le cadre, dans le sens du déplacement. Écrivez toujours le mouvement en toutes lettres : « travelling avant », « pano droite », « zoom avant ».</p>'}]},
+ {t:"Rythme et son",s:[
+  function(){var f='';for(var i=0;i<10;i++)f+='<i style="flex:1"></i>';return eye("Flash 6 · Rythme et son")+'<h2 class="s-h">La durée d\'une case est un choix</h2><div class="s-bars"><span class="lbl">Cases longues · calme, attente, émotion</span><div class="s-strip"><i style="flex:3"></i><i style="flex:4"></i><i style="flex:3"></i></div><span class="lbl">Cases courtes · tension, action, urgence</span><div class="s-strip fast">'+f+'</div></div><div class="s-grid" style="grid-template-columns:repeat(4,1fr)">'+card("","Musique","L'émotion.")+card("","Bruitages","Le réel.")+card("","Voix","L'histoire.")+card("","Silence","La tension.")+'</div>'}]},
+ {t:"Une histoire en 45 s",s:[
+  function(){return eye("Flash 7 · Une histoire en 45 secondes")+'<h2 class="s-h">Quatre ingrédients, pas un de plus</h2><div class="s-time"><div style="flex:2"><span class="k">0 – 5 s</span><h3>Un personnage</h3><p>Qui ? On le comprend en un plan.</p></div><div style="flex:2"><span class="k">5 – 15 s</span><h3>Un désir</h3><p>Que veut-il, tout de suite ?</p></div><div class="hot" style="flex:3"><span class="k">15 – 35 s</span><h3>Un obstacle</h3><p>Qu\'est-ce qui l\'en empêche ? C\'est le cœur du film.</p></div><div style="flex:2"><span class="k">35 – 45 s</span><h3>Une chute</h3><p>Une fin qui surprend ou fait sourire.</p></div></div><p class="s-lead">Le genre, le lieu et l\'objet tirés au sort doivent servir au moins un des quatre.</p>'}]},
+ {t:"Le pitch",s:[
+  function(){return eye("Flash 8 · Le pitch")+'<h2 class="s-h">Une minute pour donner envie</h2><div class="s-grid" style="grid-template-columns:repeat(3,1fr)">'+card("10 s","L'accroche","Une question, une image, une phrase choc. Pas « Bonjour, mon film parle de… »")+card("35 s","L'histoire","Personnage, désir, obstacle. On garde la chute secrète.")+card("15 s","La promesse","Ce que le public va ressentir : rire, peur, frisson.")+'</div><div class="s-log"><span class="k">La logline, en une phrase</span><p>Quand [événement], [personnage] doit [désir], mais [obstacle].</p></div>'}]}
+];
+
+/* =================== ÉTAT =================== */
+var S=null, db=null, assets=null, downloads=null, isEditor=false, ready=false, dbMissing=false;
+var G={notes:{},fiches:[],bk:{}};
+var lastBk=0;
+function stamp(){var d=new Date(),z=function(n){return String(n).padStart(2,"0")};return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate())}
+function backup(id){if(!db||!isEditor||!S)return Promise.resolve();lastBk=Date.now();var body={at:Date.now(),state:JSON.parse(JSON.stringify(S)),notes:JSON.parse(JSON.stringify(G.notes||{})),fiches:G.fiches.map(function(x){var y=JSON.parse(JSON.stringify(x));delete y._id;return y})};return db.doc("backups/"+(id||("jour-"+stamp()))).set(body).catch(function(){})}
+function bkLabel(id,at){var d=new Date(at||0);return (id.indexOf("avant-remise")===0?"Avant remise à zéro · ":id.indexOf("avant-restauration")===0?"Avant restauration · ":id.indexOf("manuel-")===0?"Manuelle · ":"Automatique · ")+d.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"})+" à "+String(d.getHours()).padStart(2,"0")+"h"+String(d.getMinutes()).padStart(2,"0")}
+var prevS=null, tab=lsGet("sq-tab")||"cond", armed={}, saveT=null, syncState="ok", lastSaved="";
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]})}
+function blob(id){return (window.__MEDIA&&window.__MEDIA[id])||""}
+function byId(id){if(!S)return null;for(var i=0;i<S.students.length;i++)if(S.students[i].id===id)return S.students[i];return null}
+function ranked(){return S.students.slice().sort(function(a,b){return b.xp-a.xp||a.name.localeCompare(b.name)})}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function defaults(s){
+  s.students=s.students||[];s.day=s.day||1;s.slot=s.slot||"matin";s.timer=s.timer||{running:false,endsAt:0,remaining:300,total:300};
+  s.mode=s.mode||"seq";s.flash=s.flash||{k:0,i:0};s.pieges=s.pieges||{p:0,rev:false};s.quiz=s.quiz||{i:0,rev:false};
+  s.projects=s.projects||{};s.prizes=s.prizes||{};s.pairs=s.pairs||[];s.media=s.media||{ex:[],quiz:[]};s.media.ex=s.media.ex||[];s.media.quiz=s.media.quiz||[];
+  return s;
+}
+function route(){var h=(location.hash||"").replace("#","");if(h==="producteur")return "prod";return (h==="projection"||ssGet("sq-screen")==="1")?"projection":"prod"}
+function ssGet(k){try{return sessionStorage.getItem(k)}catch(e){return null}}
+function ssSet(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}
+function view(){return isEditor&&route()!=="projection"?"prod":"proj"}
+function itemAt(c){return c&&PROGRAM[c.d+"-"+c.s]?PROGRAM[c.d+"-"+c.s][c.i]:null}
+function timed(it){return it&&(it.type==="defi"||it.type==="note"||it.type==="atelier")}
+var TYPES={info:"",pause:"Pause",defi:"Défi",atelier:"Atelier",note:"Noté"};
+function badge(it){if(!it||!TYPES[it.type])return "";return '<span class="bdg '+it.type+'">'+(it.type==="note"?(it.r==="f"?"Noté · final":"Noté · R"+(it.r+1)):TYPES[it.type])+'</span>'}
+function slides(k){FLASHES[0].s[2].ex=true;var F=FLASHES[k]||FLASHES[0],n=((S.media&&S.media.ex)||[]).length;return F.s.filter(function(f){return !f.ex||n>=2})}
+var FALLQ=[6,1,3,7,0,4,2,5];
+function quizItems(){var Q=S.media.quiz;if(Q.length)return Q.map(function(x){return {img:blob(x.id),a:x.a}});return FALLQ.map(function(k){return {svg:SVG.valeurs[k].replace(/ aria-label="[^"]*"/,""),a:VALEURS[k]}})}
+var secretV=null;
+function curIdx(){var C=S.challenge;if(!C)return null;var p=C.key.split("-");if(p.length!==3)return null;return {d:+p[0],s:p[1],i:+p[2]}}
+function nextOf(){var c=curIdx(),d=S.day,s=S.slot,i=-1;if(c&&c.d===d&&c.s===s)i=c.i;var L=PROGRAM[d+"-"+s]||[];if(i+1<L.length)return {d:d,s:s,i:i+1};if(s==="matin")return {d:d,s:"aprem",i:0};if(d<4)return {d:d+1,s:"matin",i:0};return null}
+function timerParts(){
+  var T=S.timer,rem=T.running?Math.max(0,(T.endsAt-Date.now())/1000):T.remaining;
+  rem=Math.ceil(rem);var m=Math.floor(rem/60),s=rem%60;
+  var cls=!T.running&&rem===T.total?"idle":rem===0?"done":rem<=60?"low":"";
+  return {txt:String(m).padStart(2,"0")+":"+String(s).padStart(2,"0"),cls:cls,pct:T.total?Math.max(0,Math.min(100,(1-rem/T.total)*100)):0,rem:rem};
+}
+function mmss(x){x=Math.round(x||0);return Math.floor(x/60)+":"+String(x%60).padStart(2,"0")}
+function tcLab(tp){return tp.cls==="done"?'<b>Coupez !</b>':S.timer.running?'Chrono':'En pause'}
+
+/* =================== ÉCRAN ÉLÈVES =================== */
+var app=document.getElementById("app");
+function projTop(){
+  var th=THEMES[S.day-1][S.slot==="matin"?0:1];
+  return '<header class="p-top"><div class="p-brand"><span class="slate" aria-hidden="true"></span>Storyboard Quest</div><span>'+DSHORT[S.day-1]+' · '+(S.slot==="matin"?"Matin":"Après-midi")+' · <b>'+esc(th)+'</b></span><span class="sp"></span><span id="clock" class="mono"></span>'+(isEditor?'<button class="quit" type="button" data-act="quit">◀ Mon espace</button>':'')+'</header>';
+}
+function rankCol(big){
+  var R=ranked(),max=Math.max(1,R[0]?R[0].xp:1),h='';
+  h+='<div class="'+(big?'rank-big':'rank-col')+'">'+(big?'<h1>Classement</h1>':'<div class="rank-head"><h2>Classement</h2>'+(S.closed?'<span class="closed">Arrêté</span>':'<span class="eyebrow">XP</span>')+'</div>')+'<div class="board" id="board">';
+  R.forEach(function(s,i){
+    h+='<div class="row'+(i===0&&s.xp>0?' lead':'')+'" data-id="'+s.id+'"><div class="rk">'+(i+1)+'</div><div class="who"><div class="nm">'+esc(s.name)+(s.cards||[]).map(function(c){return CARDS[c]?'<span class="chip '+c+'">'+CARDS[c].n+'</span>':''}).join("")+'</div><div class="bar"><i data-w="'+Math.round(Math.max(0,s.xp)/max*100)+'" style="width:'+Math.round(Math.max(0,s.xp)/max*100)+'%"></i></div></div><div class="pts" data-to="'+s.xp+'">'+s.xp+'<small>XP</small></div></div>';
+  });
+  return h+'</div></div>';
+}
+function seqStage(flipDraw){
+  var C=S.challenge||{title:"En attente du clap",desc:"",xp:"",n:0},tp=timerParts(),ty=C.type||"";
+  var rendu=ty==="note";
+  var h='<section class="stage"><div class="seq-eyebrow">'+(ty==="note"?'<b>Rendu noté</b>':ty==="defi"?'<b>Défi</b>':ty==="atelier"?'<b>Atelier</b>':'Séquence <b>'+String(C.n||0).padStart(2,"0")+'</b>')+'</div><h1 class="seq-title'+(rendu?' rendu':'')+'">'+esc(C.title)+'</h1>'+(C.desc?'<p class="seq-desc'+(C.desc.length>200?' long':'')+'">'+esc(C.desc)+'</p>':'')+(C.v?'<div class="vstrip">'+SVG.valeurs.map(function(sv,i){return '<figure>'+sv.replace(/ aria-label="[^"]*"/,"")+'<figcaption>'+esc(VALEURS[i])+'</figcaption></figure>'}).join("")+'</div>':'')+(C.xp?'<span class="seq-xp">'+esc(C.xp)+'</span>':'');
+  if(S.draw&&S.mode==="seq")h+=drawCards(flipDraw);
+  if(S.pairs.length||S.guest){h+='<div class="pairs">';S.pairs.forEach(function(p){var nm=p.map(byId).filter(Boolean).map(function(x){return esc(x.name)});if(nm.length)h+='<span class="pair">'+nm.join('<i>+</i>')+'</span>'});h+='</div>'}
+  h+='<div class="seq-fill"></div>'+(S.timer.total>0?'<div class="tc"><div id="tc" class="tc-num '+tp.cls+'">'+tp.txt+'</div><div class="tc-lab" id="tcl">'+tcLab(tp)+'</div></div><div class="tc-bar"><i id="tcb" style="width:'+tp.pct+'%"></i></div>':'')+'</section>';
+  return h;
+}
+function drawCards(flip){
+  var d=S.draw;if(!d)return"";
+  return (d.who?'<div class="seq-eyebrow">Mission de <b>'+esc((byId(d.who)||{}).name||"")+'</b></div>':'')+'<div class="draws'+(d.items.length===1?' one':'')+(flip?' flip':'')+'">'+d.items.map(function(x){var v=String(x.v),k=v.indexOf(". ");if(v.length>80&&k>0)return '<div class="dcard long"><span>'+esc(x.l)+'</span><strong>'+esc(v.slice(0,k))+'</strong><p>'+esc(v.slice(k+2))+'</p></div>';return '<div class="dcard"><span>'+esc(x.l)+'</span><strong>'+esc(v)+'</strong></div>'}).join("")+'</div>';
+}
+function flashSlide(){
+  var L=slides(S.flash.k),i=Math.min(S.flash.i,L.length-1),r=L[i](),cls="";
+  if(typeof r==="object"){cls=r.cls;r=r.h}
+  return '<div class="slide '+cls+'">'+r+'<span class="slide-count">'+(i+1)+' / '+L.length+'</span></div>';
+}
+function piegeView(){
+  var p=PIEGES.P[S.pieges.p]||PIEGES.P[0],open=S.pieges.rev;
+  var h='<div class="trap"><div class="trap-head"><div><div class="seq-eyebrow">Raccords piégés · Planche <b>'+(S.pieges.p+1)+'</b> / 6 · '+esc(p.tag)+'</div><h1>'+esc(p.t)+'</h1><p>'+esc(p.brief)+'</p></div><span class="trap-count">'+p.a.length+' erreurs à trouver</span></div><div class="trap-strip'+(open?' revealed':'')+'">';
+  p.cases.forEach(function(c,i){h+='<figure>'+PIEGES.svg(c.d,c.m)+'<figcaption><b>CASE '+(i+1)+'</b>'+esc(c.c)+'</figcaption></figure>'});
+  h+='</div>';
+  if(open)h+='<div class="trap-ans"><ol>'+p.a.map(function(a,i){return '<li><b>Erreur '+(i+1)+'.</b> '+esc(a)+'</li>'}).join("")+'</ol></div>';
+  return h+'</div>';
+}
+function quizView(){
+  var Q=quizItems();
+  var i=Math.min(S.quiz.i,Q.length-1),it=Q[i];
+  return '<div class="media"><p class="q">Quelle valeur de plan ? <span class="mono" style="color:var(--muted);font-size:.5em">'+(i+1)+' / '+Q.length+'</span></p>'+(it.img?'<img src="'+it.img+'" alt="Image du quiz '+(i+1)+'">':'<div class="qsvg">'+it.svg+'</div>')+''+(S.quiz.rev&&it.a?'<p class="ans">'+esc(it.a)+'</p>':'')+'</div>';
+}
+function contratView(){
+  return '<div class="contract"><div class="seq-eyebrow" style="color:#6E685C">Storyboard Quest</div><h1>Contrat de réalisateur</h1><p>Entre le studio Storyboard Quest, représenté par son producteur, et le réalisateur soussigné, il est convenu ce qui suit.</p><p><b>Article 1 — Mission.</b> Le réalisateur livre le storyboard et l\'animatique d\'une fiction de 45 secondes en fin de workshop.</p><p><b>Article 2 — Audace.</b> Le réalisateur tente au moins une idée folle par jour.</p><p><b>Article 3 — Dessin.</b> Le réalisateur a le droit de mal dessiner. Il n\'a pas le droit de ne pas essayer.</p><p><b>Article 4 — Équipe.</b> Le réalisateur aide ses collègues et ne se moque jamais d\'une planche.</p><p><b>Article 5 — Rémunération.</b> Le réalisateur est payé en XP, en bonus de production et en gloire.</p><div class="sig"><span>Signature du réalisateur</span><span>Signature du producteur</span></div></div>';
+}
+function filmsView(){
+  var h='<div class="films"><h1>Les films du studio</h1>';
+  var rows=S.students.filter(function(s){return S.projects[s.id]});
+  if(!rows.length)h+='<p class="seq-desc">Les missions vont être tirées au sort.</p>';
+  rows.forEach(function(s){var p=S.projects[s.id];h+='<div class="film-row"><b>'+esc(s.name)+'</b><span>'+esc(p.genre)+'</span><span>'+esc(p.lieu)+'</span><span>'+esc(p.objet)+'</span></div>'});
+  return h+'</div>';
+}
+function palmaresView(){
+  var h='<div class="prizes-big"><h1>Palmarès</h1><div class="prize-grid">';
+  PRIZES.forEach(function(p){var w=S.prizes[p[0]]&&byId(S.prizes[p[0]]);h+='<div class="prize '+(w?'won':'wait')+'"><span>'+p[1]+'</span><strong>'+(w?esc(w.name):'À découvrir')+'</strong>'+(w?'<em>'+p[2]+'</em>':'')+'</div>'});
+  return h+'</div></div>';
+}
+function renderProj(flipDraw){app.innerHTML=projHTML(flipDraw)}
+function projHTML(flipDraw){
+  var m=S.mode,h='<div class="proj">'+projTop();
+  if(m==="seq")h+='<div class="p-main">'+seqStage(flipDraw)+rankCol(false)+'</div>';
+  else if(m==="tirage")h+='<div class="p-main"><section class="stage">'+(S.draw?'<h1 class="seq-title">'+esc(S.draw.title)+'</h1>'+drawCards(flipDraw):'<h1 class="seq-title">Tirage au sort</h1><p class="seq-desc">Le producteur va tirer les cartes.</p>')+'<div class="seq-fill"></div>'+(Object.keys(S.projects).length?filmsMini():'')+'</section>'+rankCol(false)+'</div>';
+  else{
+    h+='<div class="p-main full"><div class="full-area">';
+    h+=m==="flash"?flashSlide():m==="pieges"?piegeView():m==="quiz"?quizView():m==="exemples"?exView():m==="contrat"?contratView():m==="films"?filmsView():m==="palmares"?palmaresView():m==="classement"?rankCol(true):m==="mercredi"?mercrediView():"";
+    h+='</div></div>';
+  }
+  h+='</div>';
+  return h;
+}
+function merList(){var M=S.mer;if(!M||!M.a)return [];return M.a.map(function(x){return {s:byId(x.id),st:MER[x.k],to:byId(x.to)}}).filter(function(x){return x.s&&x.to})}
+function mercrediView(){
+  if((S.merp||0)===1){
+    var L=merList();
+    var h='<div class="slide">'+eye("Mercredi · les attributions")+'<h2 class="s-h">Ton histoire, et à qui tu envoies ton découpage</h2>';
+    if(!L.length)return h+'<p class="s-lead">Les histoires vont être tirées au sort.</p></div>';
+    h+='<div class="mer-tab">'+L.map(function(x){return '<div class="mer-row"><b>'+esc(x.s.name)+'</b><span>'+esc(x.st[0])+'</span><em>découpage envoyé à <b>'+esc(x.to.name)+'</b></em></div>'}).join("")+'</div><p class="s-lead">Le texte complet des histoires est dans Classroom.</p></div>';
+    return h;
+  }
+  var card=function(k,t,items){return '<div class="s-card mcard"><span class="k">'+k+'</span><h3>'+t+'</h3><ol>'+items.map(function(x){return '<li>'+x+'</li>'}).join("")+'</ol></div>'};
+  return '<div class="slide">'+eye("Mercredi · en autonomie · rendu 7")+'<h2 class="s-h">Un découpage, puis le storyboard d’un autre</h2><div class="s-grid" style="grid-template-columns:1fr 1fr">'+
+   card("Matin","Le découpage technique",["Écrivez le découpage de votre histoire imposée : 10 à 12 plans, 45 secondes en tout.","Une ligne par plan, dans le tableau modèle : plan, valeur, angle, mouvement, durée, action, son, raccord.","Rien à inventer : l’histoire est fixée. Tout se joue dans le choix des plans.","Dès qu’il est terminé : envoyez-le à votre camarade (e-mail ou messagerie) et déposez-le dans Classroom."])+
+   card("Après-midi","Le storyboard d’un camarade",["Dessinez sur la planche 12 cases le découpage que vous avez reçu, une case par plan.","Respectez-le à la lettre : même valeur, même angle, même mouvement.","Une indication manque ou est floue ? Dessinez votre meilleur choix et mettez un « ? » sous la case.","Planche finie : photo, dépôt dans Classroom.","Toujours rien reçu au moment de commencer ? Dessinez le découpage de secours, « Le ticket de loterie »."])+
+   '</div><p class="s-lead">Jeudi matin, on compare chaque découpage avec le storyboard qui en est sorti : est-ce le film que l’auteur avait en tête ?</p></div>';
+}
+function filmsMini(){var h='<div class="pairs">';S.students.forEach(function(s){var p=S.projects[s.id];if(p)h+='<span class="pair">'+esc(s.name)+' · '+esc(p.genre)+'</span>'});return h+'</div>'}
+function exView(){
+  var ex=S.media.ex;if(!ex.length)return '<div class="media"><p class="q">Exemples à venir…</p></div>';
+  var i=Math.min(S.exi||0,Math.max(0,Math.ceil(ex.length/2)-1));
+  return '<div class="slide">'+eye("Exemple "+(i+1)+" · Sur le papier, puis à l'écran")+'<div class="s-pair"><figure><img src="'+blob(ex[2*i])+'" alt="La planche"><figcaption>La planche</figcaption></figure>'+(ex[2*i+1]?'<figure><img src="'+blob(ex[2*i+1])+'" alt="Le film fini"><figcaption>Le film fini</figcaption></figure>':'')+'</div></div>';
+}
+
+/* Animations de l'écran élèves (différences entre deux états) */
+function overlay(small,big,clap){var o=document.createElement("div");o.className="overlay";o.innerHTML='<div>'+(clap?'<span class="clap"></span>':'')+(small?'<small>'+esc(small)+'</small>':'')+'<strong>'+esc(big)+'</strong></div>';document.body.appendChild(o);setTimeout(function(){o.remove()},3000)}
+function animateProj(prev){
+  var reduce=false;try{reduce=matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){}
+  if(!prev||reduce)return;
+  var px={},porder=prev.students.slice().sort(function(a,b){return b.xp-a.xp||a.name.localeCompare(b.name)}).map(function(s){return s.id});
+  prev.students.forEach(function(s){px[s.id]=s.xp});
+  var board=document.getElementById("board");
+  if(board){
+    var rows=[].slice.call(board.children),hgt=rows[0]?rows[0].getBoundingClientRect().height+8:0;
+    rows.forEach(function(row,i){var id=row.getAttribute("data-id"),old=porder.indexOf(id);
+      if(old>=0&&old!==i){row.style.transition="none";row.style.transform="translateY("+((old-i)*hgt)+"px)"}
+      var d=(byId(id)||{}).xp-(px[id]==null?(byId(id)||{}).xp:px[id]);
+      if(d){var b=document.createElement("span");b.className="delta"+(d<0?" neg":"");b.textContent=(d>0?"+":"")+d+" XP";row.appendChild(b);
+        var pts=row.querySelector(".pts"),a=px[id],z=(byId(id)||{}).xp,t0=performance.now();
+        (function step(t){var k=Math.min(1,(t-t0)/1100);pts.innerHTML=Math.round(a+(z-a)*(1-Math.pow(1-k,3)))+"<small>XP</small>";if(k<1)requestAnimationFrame(step)})(t0);}
+    });
+    board.offsetHeight;requestAnimationFrame(function(){rows.forEach(function(r){r.style.transition="";r.style.transform=""})});
+  }
+  PRIZES.forEach(function(p){var id=S.prizes[p[0]];if(id&&prev.prizes&&prev.prizes[p[0]]!==id){var w=byId(id);if(w)overlay(p[1],w.name)}});
+  if(S.closed&&!prev.closed){var j=null;S.students.forEach(function(s){if((s.cards||[]).indexOf("joker")>=0)j=s});if(j)overlay("Joker pour",j.name)}
+  if(S.challenge&&(!prev.challenge||prev.challenge.n!==S.challenge.n)&&S.mode==="seq")overlay("","Action !",true);
+}
+
+/* =================== PRODUCTEUR =================== */
+var ICON={
+ cond:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v14H4z"/><path d="M4 9h16M8 5l2 4M13 5l2 4"/></svg>',
+ ecran:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/></svg>',
+ eleves:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/><path d="M16 5.5a3 3 0 0 1 0 5.6M18 14.6c1.3.6 2.2 2 2.5 4.4"/></svg>',
+ notes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg>',
+ kit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h11l3 3v13H5z"/><path d="M9 10h7M9 14h7M9 18h4"/></svg>',
+ cast:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/></svg>'
+};
+var TABS=[["cond","Conducteur"],["ecran","Écran"],["eleves","Élèves"],["notes","Notes"],["kit","Kit"]];
+function renderProd(){
+  var h='<div class="prod"><header class="ph"><div class="p-brand"><span class="slate" aria-hidden="true"></span>Producteur</div><span class="ph-title">'+(TABS.filter(function(t){return t[0]===tab})[0]||["",""])[1]+'</span><span class="sync '+(syncState==="busy"?"busy":syncState==="err"?"err":"")+'" id="sync" title="Synchronisation"></span><span class="sp"></span><button class="cast" type="button" data-act="cast">'+ICON.cast+'Écran élèves</button></header>';
+  h+='<div class="pmain">'+(tab==="cond"?tCond():tab==="ecran"?tEcran():tab==="eleves"?tEleves():tab==="notes"?tNotes():tKit())+'</div>';
+  h+='<aside class="live" aria-label="Aperçu de l\'écran élèves"><div class="live-h"><span>Écran élèves, en direct</span><span class="hint">'+esc(modeName(S.mode))+'</span></div><div class="live-box" id="livebox"><div class="live-in" id="livein">'+previewHTML()+'</div></div><p class="hint">Adresse de l\'écran élèves (sans compte) : '+esc(location.href.replace(/regie\.html.*$/,'').replace(/#.*$/,''))+'</p></aside>';
+  h+='</div><nav class="tabs" aria-label="Onglets"><div class="p-brand tabs-brand" style="display:none"><span class="slate" aria-hidden="true"></span>Producteur</div><div class="tabs-in">'+TABS.map(function(t){return '<button class="tab" type="button" data-tab="'+t[0]+'"'+(tab===t[0]?' aria-current="page"':'')+'>'+ICON[t[0]]+t[1]+'</button>'}).join("")+'</div></nav>';
+  app.innerHTML=h;fitLive();
+}
+function previewHTML(){return projHTML(false).replace(/ id="(tc|tcb|tcl|clock|board)"/g,' data-p$1="1"').replace(/<button[^>]*data-act="quit"[\s\S]*?<\/button>/,'')}
+function fitLive(){var b=document.getElementById("livebox"),i=document.getElementById("livein");if(!b||!i||!b.offsetWidth)return;var k=b.offsetWidth/window.innerWidth;i.style.transform="scale("+k+")";b.style.height=(window.innerHeight*k)+"px"}
+window.addEventListener("resize",fitLive);
+var MODES=[["seq","Séquence"],["flash","Flash"],["pieges","Raccords piégés"],["quiz","Quiz"],["exemples","Exemples"],["tirage","Tirage"],["films","Films"],["contrat","Contrat"],["classement","Classement"],["palmares","Palmarès"],["mercredi","Mercredi"]];
+function modeName(m){for(var i=0;i<MODES.length;i++)if(MODES[i][0]===m)return MODES[i][1];return m}
+function tCond(){
+  var C=S.challenge,c=curIdx(),it=itemAt(c),nx=nextOf(),nxt=nx?PROGRAM[nx.d+"-"+nx.s][nx.i]:null,tp=timerParts();
+  var h='<section class="card"><div class="eyebrow">'+DATES[S.day-1]+' · '+(S.slot==="matin"?"Matin":"Après-midi")+'</div><div class="now-row">'+badge(it)+'<h2 class="now-title">'+esc(C?C.title:"Rien en cours")+'</h2></div>';
+  if(C&&C.desc)h+='<p class="sees"><span>Les élèves lisent :</span> '+esc(C.desc)+'</p>';
+  if(C&&C.xp&&C.type!=="note")h+='<p class="sees"><span>À gagner :</span> '+esc(C.xp)+'</p>';
+  if(S.timer.total>0)h+='<div class="tcp"><span id="tc" class="tc-num mono '+tp.cls+'">'+tp.txt+'</span><div class="row-btns">'+(S.timer.running?'<button class="btn" type="button" data-act="t-pause">Pause</button>':'<button class="btn pri" type="button" data-act="t-start"'+(tp.rem===0?' disabled':'')+'>Démarrer</button>')+'<button class="btn" type="button" data-act="t-minus"'+(tp.rem<=0?' disabled':'')+'>−1 min</button><button class="btn" type="button" data-act="t-plus">+1 min</button><button class="btn ghost" type="button" data-act="t-reset">Remettre '+mmss(S.timer.base||S.timer.total)+'</button></div></div>';
+  h+='<div class="onair"><i></i>À l\'écran : <b>'+modeName(S.mode)+'</b>'+(S.mode!=="seq"?' <button class="btn sm" type="button" data-act="mode" data-m="seq">Revenir à la consigne</button>':'')+'</div></section>';
+  if(it&&(it.p||it.s.length)){
+    h+='<section class="card fiche">';
+    if(it.p)h+='<div class="prep"><h3>À préparer</h3><p>'+esc(it.p)+'</p></div>';
+    if(it.s.length)h+='<h3>Ce que tu fais</h3><ol class="steps">'+it.s.map(function(x){return '<li>'+esc(x)+'</li>'}).join("")+'</ol>';
+    h+='</section>';
+  }
+  var tools=it?it.tools.slice():[];
+  if(S.mode==="flash"&&tools.indexOf("slides")<0)tools.unshift("slides");
+  if(S.mode==="pieges"&&tools.indexOf("pieges")<0)tools.unshift("pieges");
+  if(S.mode==="quiz"&&tools.indexOf("quiz")<0)tools.unshift("quiz");
+  var th=tools.map(function(t){return tool(t,it)}).join("");
+  if(it&&it.type==="note")th+=starsPanel(it.r);
+  if(th)h+='<section class="card tools">'+th+'</section>';
+  if(nxt)h+='<button class="next" type="button" data-act="next"><b>Suivant ▶</b><span>'+(nx.d!==S.day||nx.s!==S.slot?DATES[nx.d-1]+(nx.s==="matin"?" matin":" après-midi")+' · ':'')+esc(nxt.t)+(TYPES[nxt.type]&&nxt.type!=="pause"?' · '+(nxt.type==="note"?"noté":TYPES[nxt.type].toLowerCase()):'')+'</span></button>';
+  h+='<details'+(lsGet("sq-open-list")==="1"?' open':'')+' id="dl"><summary>Toute la demi-journée</summary><div class="grid2" style="margin-bottom:10px"><select class="sel" id="r-day" aria-label="Jour">'+DATES.map(function(d,i){return '<option value="'+(i+1)+'"'+(i+1===S.day?' selected':'')+'>'+d+'</option>'}).join("")+'</select><select class="sel" id="r-slot" aria-label="Créneau"><option value="matin"'+(S.slot==="matin"?' selected':'')+'>Matin</option><option value="aprem"'+(S.slot==="aprem"?' selected':'')+'>Après-midi</option></select></div><div class="list">';
+  (PROGRAM[S.day+"-"+S.slot]||[]).forEach(function(x,i){var cur=C&&C.key===S.day+"-"+S.slot+"-"+i;h+='<div class="li'+(cur?' cur':'')+'"><span class="t">'+esc(x.t)+(timed(x)?' <small>'+x.m+' min</small>':'')+'</span>'+badge(x)+'<button class="btn sm'+(cur?'':' pri')+'" type="button" data-act="launch" data-i="'+i+'">'+(cur?'Relancer':'Lancer')+'</button></div>'});
+  h+='</div><p class="hint">Badges : Noté = rendu qui compte dans la note sur 20 · Défi = chrono et XP · Atelier = chrono, sans XP ni note · sans badge = tu présentes, pas de chrono.</p></details>';
+  h+='<details><summary>Séquence improvisée</summary><div class="list"><label class="field" for="c-t">Titre<input id="c-t" placeholder="Ex. Le plan impossible"></label><label class="field" for="c-d">Consigne<input id="c-d"></label><div class="grid2"><label class="field" for="c-m">Minutes<input id="c-m" type="number" min="1" value="10"></label><label class="field" for="c-x">À gagner<input id="c-x" placeholder="20 XP"></label></div><button class="btn pri" type="button" data-act="launch-custom">Lancer</button></div></details>';
+  return h;
+}
+function tool(t,it){
+  var h='';
+  if(t==="slides"){
+    if(S.mode==="flash"){var L=slides(S.flash.k);h='<div class="tool"><h3>Flash '+(S.flash.k+1)+' · '+esc(FLASHES[S.flash.k].t)+'</h3><div class="row-btns"><button class="btn" type="button" data-act="slide" data-d="-1"'+(S.flash.i<=0?' disabled':'')+'>◀ Diapo</button><span class="mono cnt">'+(Math.min(S.flash.i,L.length-1)+1)+' / '+L.length+'</span><button class="btn pri" type="button" data-act="slide" data-d="1"'+(S.flash.i>=L.length-1?' disabled':'')+'>Diapo ▶</button></div></div>'}
+    else if(it&&it.a&&it.a.mode==="flash")h='<div class="tool"><button class="btn pri" type="button" data-act="flash" data-k="'+it.a.k+'">Afficher le flash</button></div>';
+  }
+  else if(t==="pieges"){
+    if(S.mode!=="pieges")return '<div class="tool"><button class="btn pri" type="button" data-act="mode" data-m="pieges">Afficher les planches</button></div>';
+    h='<div class="tool"><h3>Raccords piégés</h3><div class="row-btns"><button class="btn" type="button" data-act="trap" data-d="-1"'+(S.pieges.p<=0?' disabled':'')+'>◀</button><span class="mono cnt">Planche '+(S.pieges.p+1)+' / 6</span><button class="btn" type="button" data-act="trap" data-d="1"'+(S.pieges.p>=5?' disabled':'')+'>▶</button><button class="btn '+(S.pieges.rev?'on':'pri')+'" type="button" data-act="trap-rev">'+(S.pieges.rev?'Masquer le corrigé':'Révéler le corrigé')+'</button></div><div class="note">'+PIEGES.P[S.pieges.p].a.map(function(a,i){return (i+1)+". "+esc(a)}).join("<br>")+'</div></div>';
+  }
+  else if(t==="quiz"){
+    if(S.mode!=="quiz")return '<div class="tool"><button class="btn pri" type="button" data-act="mode" data-m="quiz">Afficher le quiz</button></div>';
+    var Q=quizItems(),qi=Math.min(S.quiz.i,Q.length-1);
+    h='<div class="tool"><h3>Quiz'+(S.media.quiz.length?'':' (dessins du flash 2)')+'</h3><div class="row-btns"><button class="btn" type="button" data-act="quiz" data-d="-1"'+(qi<=0?' disabled':'')+'>◀</button><span class="mono cnt">'+(qi+1)+' / '+Q.length+'</span><button class="btn" type="button" data-act="quiz" data-d="1"'+(qi>=Q.length-1?' disabled':'')+'>▶</button><button class="btn '+(S.quiz.rev?'on':'pri')+'" type="button" data-act="quiz-rev">'+(S.quiz.rev?'Masquer':'Révéler la réponse')+'</button></div>'+(Q[qi]&&Q[qi].a?'<p class="hint">Réponse : <b>'+esc(Q[qi].a)+'</b></p>':'')+'</div>';
+  }
+  else if(t==="pairs"||t==="pairs-keep"){
+    h='<div class="tool"><h3>'+(t==="pairs-keep"?'Les binômes de la chasse':'Binômes (trio si nombre impair)')+'</h3>'+(t==="pairs"?'<div class="row-btns"><button class="btn pri" type="button" data-act="pairs">'+(S.pairs.length?'Retirer au sort':'Tirer les binômes')+'</button>'+(S.pairs.length?'<button class="btn ghost" type="button" data-act="pairs-clear">Effacer</button>':'')+'</div>':(S.pairs.length?'':'<p class="hint">Aucun binôme en mémoire. Relance « Chasse au cadre » pour les tirer.</p>'));
+    if(S.pairs.length){var hasXp=it&&it.tools.indexOf("xp")>=0;h+='<div class="list">';S.pairs.forEach(function(pp){var nm=pp.map(byId).filter(Boolean).map(function(x){return esc(x.name)});if(nm.length)h+='<div class="li"><span class="t">'+nm.join(' + ')+(pp.length>2?' <small>trio</small>':'')+'</span>'+(hasXp?'<span class="row-btns">'+[5,10].map(function(v){return '<button class="btn sm" type="button" data-act="xp-pair" data-ids="'+pp.join(",")+'" data-v="'+v+'">+'+v+'</button>'}).join("")+'</span>':'')+'</div>'});h+='</div>'}
+    h+='</div>';
+  }
+  else if(t.indexOf("draw:")===0){
+    var k=t.slice(5);h='<div class="tool"><h3>Tirage</h3><div class="row-btns"><button class="btn pri" type="button" data-act="draw-k" data-k="'+k+'">'+(S.draw&&S.draw.title===DECKS[k].n?'Tirer à nouveau':'Tirer : '+esc(DECKS[k].n.toLowerCase()))+'</button>'+(S.draw?'<button class="btn ghost" type="button" data-act="draw-clear">Effacer</button>':'')+'</div>'+(S.draw?'<p class="drawn'+(String(S.draw.items[0].v).length>80?' long':'')+'">'+S.draw.items.map(function(x){return esc(x.v)}).join(" · ")+'</p>':'')+'</div>';
+  }
+  else if(t==="secret"){
+    h='<div class="tool"><h3>Carte secrète (visible par toi seul)</h3><div class="row-btns"><button class="btn pri" type="button" data-act="secret">'+(secretV?'Carte suivante':'Tirer une carte')+'</button></div>'+(secretV?'<p class="drawn">'+esc(secretV)+'</p>':'')+'</div>';
+  }
+  else if(t==="pitch"){
+    h='<div class="tool"><h3>Pitch</h3><div class="row-btns"><button class="btn pri" type="button" data-act="t-1min">Chrono 1 min</button></div><p class="hint">Lance un chrono d\'une minute pour le pitch suivant. « Remettre » revient au chrono de la séquence.</p></div>';
+  }
+  else if(t==="rank"){
+    h='<div class="tool"><div class="row-btns">'+(S.mode==="classement"?'<button class="btn" type="button" data-act="mode" data-m="seq">Revenir à la consigne</button>':'<button class="btn pri" type="button" data-act="mode" data-m="classement">Afficher le classement en grand</button>')+'</div></div>';
+  }
+  else if(t==="closerank"){
+    h='<div class="tool">'+(S.closed?'<p class="hint">Classement arrêté, Joker donné.</p>':'<button class="btn '+(armed.close?'armed':'pri')+'" type="button" data-act="close-rank">'+(armed.close?'Confirmer : arrêter et donner le Joker':'Arrêter le classement et donner le Joker')+'</button>')+'</div>';
+  }
+  else if(t==="projets"){
+    h='<div class="tool"><h3>Tirage du projet final</h3><div class="list">';
+    S.students.forEach(function(s){var p=S.projects[s.id];h+='<div class="li"><span class="t">'+esc(s.name)+(p?' <small>'+esc(p.genre)+' · '+esc(p.lieu)+' · '+esc(p.objet)+'</small>':'')+'</span><button class="btn sm '+(p?'':'pri')+'" type="button" data-act="draw-proj" data-id="'+s.id+'">'+(p?'Retirer':'Tirer')+'</button></div>'});
+    h+='</div><p class="hint">Director\'s cut : change une contrainte dans l\'onglet Écran.</p></div>';
+  }
+  else if(t==="mercredi"){
+    var L=merList();
+    h='<div class="tool"><h3>Histoires et échanges du mercredi</h3><div class="row-btns"><button class="btn '+(L.length?(armed.mer?'armed':''):'pri')+'" type="button" data-act="mer-draw">'+(L.length?(armed.mer?'Confirmer : tout retirer au sort':'Retirer au sort'):'Tirer les histoires et les échanges')+'</button><button class="btn" type="button" data-act="mer-page" data-p="0"'+(S.mode==="mercredi"&&!(S.merp||0)?' aria-pressed="true"':'')+'>Afficher les missions</button><button class="btn" type="button" data-act="mer-page" data-p="1"'+(S.mode==="mercredi"&&S.merp===1?' aria-pressed="true"':'')+'>Afficher les attributions</button></div>';
+    if(L.length)h+='<div class="list">'+L.map(function(x){return '<div class="li"><span class="t">'+esc(x.s.name)+' · <b>'+esc(x.st[0])+'</b> <small>envoie son découpage à '+esc(x.to.name)+'</small></span></div>'}).join("")+'</div>';
+    h+='</div>';
+  }
+  else if(t==="xp"){
+    h='<div class="tool"><h3>Donner des XP</h3><div class="row-btns">'+[5,10,15].map(function(v){return '<button class="btn" type="button" data-act="xp-all" data-v="'+v+'">+'+v+' à tous</button>'}).join("")+'</div><div class="xpgrid">'+S.students.map(function(s){return '<div class="xprow"><span class="t">'+esc(s.name)+' <small class="mono">'+s.xp+'</small></span><span class="row-btns">'+[5,10].map(function(v){return '<button class="btn sm" type="button" data-act="xp" data-id="'+s.id+'" data-v="'+v+'">+'+v+'</button>'}).join("")+'</span></div>'}).join("")+'</div></div>';
+  }
+  return h;
+}
+function starsPanel(r){
+  if(!db)return '<div class="tool"><p class="hint">Les étoiles se notent dans l\'onglet Notes.</p></div>';
+  var h='<div class="tool"><h3>'+(r==="f"?'Ta grille du final (0 à 5)':'Étoiles du '+RENDUS[r])+'</h3>';
+  if(r==="f"){S.students.forEach(function(s){var f=(G.notes[s.id]||{}).f||[];h+='<details class="nd" data-sid="'+s.id+'"'+(openN[s.id]?' open':'')+'><summary>'+esc(s.name)+'</summary><div class="crit">';CRITS.forEach(function(lb,i){h+='<span>'+lb+'</span>'+stars(s.id,"f",i,f[i])});h+='</div></details>'})}
+  else{h+='<p class="hint">Une étoile par point validé : rendu à l\'heure, format complet, lisible, brique du jour, audace.</p><div class="crit">';S.students.forEach(function(s){var rr=(G.notes[s.id]||{}).r||[];h+='<span>'+esc(s.name)+'</span>'+stars(s.id,"r",r,rr[r])});h+='</div>'}
+  return h+'</div>';
+}
+
+function tEcran(){
+  var h='<section class="card"><h2>À l\'écran</h2><div class="modes">'+MODES.map(function(m){return '<button class="mode" type="button" data-act="mode" data-m="'+m[0]+'" aria-pressed="'+(S.mode===m[0])+'">'+m[1]+'</button>'}).join("")+'</div></section>';
+  var m=S.mode;
+  if(m==="seq"||m==="tirage"){
+    h+='<section class="card"><h3>Tirages</h3><div class="row-btns"><button class="btn" type="button" data-act="draw-one" data-k="roman">Histoire du roman-photo</button><button class="btn" type="button" data-act="draw-one" data-k="a180">Action 180°</button>'+(S.draw?'<button class="btn ghost" type="button" data-act="draw-clear">Effacer</button>':'')+'</div>'+(S.draw?'<p class="hint">À l\'écran : '+S.draw.items.map(function(x){return esc(x.v)}).join(" · ")+'</p>':'')+
+     '<h3>Projet final (jeudi)</h3><div class="list">';
+    S.students.forEach(function(s){var p=S.projects[s.id];h+='<div class="stu"><div class="stu-top"><b>'+esc(s.name)+'</b><button class="btn sm '+(p?'':'pri')+'" type="button" data-act="draw-proj" data-id="'+s.id+'">'+(p?'Retirer':'Tirer')+'</button></div>'+(p?'<div class="grid3">'+["genre","lieu","objet"].map(function(k){return '<select class="sel" aria-label="'+DECKS[k].n+'" data-pj="'+s.id+'" data-k="'+k+'">'+DECKS[k].items.map(function(v){return '<option'+(v===p[k]?' selected':'')+'>'+esc(v)+'</option>'}).join("")+'</select>'}).join("")+'</div>':'')+'</div>'});
+    h+='</div><p class="hint">Director\'s cut : change la contrainte dans le menu.</p></section>';
+    h+='<section class="card"><h3>Binômes</h3><div class="row-btns"><button class="btn pri" type="button" data-act="pairs">Tirer les binômes</button>'+(S.pairs.length?'<button class="btn ghost" type="button" data-act="pairs-clear">Effacer</button>':'')+'</div></section>';
+  }
+  if(m==="flash"){
+    var F=FLASHES[S.flash.k];
+    h+='<section class="card"><h3>Flash</h3><div class="modes">'+FLASHES.map(function(f,i){return '<button class="mode" type="button" data-act="flash" data-k="'+i+'" aria-pressed="'+(S.flash.k===i)+'">'+(i+1)+'. '+esc(f.t)+'</button>'}).join("")+'</div><div class="row-btns"><button class="btn" type="button" data-act="slide" data-d="-1"'+(S.flash.i<=0?' disabled':'')+'>◀ Diapo</button><span class="mono">'+(S.flash.i+1)+' / '+slides(S.flash.k).length+'</span><button class="btn pri" type="button" data-act="slide" data-d="1"'+(S.flash.i>=slides(S.flash.k).length-1?' disabled':'')+'>Diapo ▶</button></div></section>';
+  }
+  if(m==="pieges"){
+    h+='<section class="card"><h3>Raccords piégés</h3><div class="row-btns"><button class="btn" type="button" data-act="trap" data-d="-1"'+(S.pieges.p<=0?' disabled':'')+'>◀</button><span class="mono">Planche '+(S.pieges.p+1)+' / 6</span><button class="btn" type="button" data-act="trap" data-d="1"'+(S.pieges.p>=5?' disabled':'')+'>▶</button><button class="btn '+(S.pieges.rev?'on':'pri')+'" type="button" data-act="trap-rev">'+(S.pieges.rev?'Masquer le corrigé':'Révéler le corrigé')+'</button></div><div class="note">'+PIEGES.P[S.pieges.p].a.map(function(a,i){return (i+1)+". "+esc(a)}).join("<br>")+'</div></section>';
+  }
+  if(m==="quiz"){
+    var Q=quizItems();
+    h+='<section class="card"><h3>Quiz « Quel plan ? »</h3>'+(Q.length?'<div class="row-btns"><button class="btn" type="button" data-act="quiz" data-d="-1"'+(S.quiz.i<=0?' disabled':'')+'>◀</button><span class="mono">'+(S.quiz.i+1)+' / '+Q.length+'</span><button class="btn" type="button" data-act="quiz" data-d="1"'+(S.quiz.i>=Q.length-1?' disabled':'')+'>▶</button><button class="btn '+(S.quiz.rev?'on':'pri')+'" type="button" data-act="quiz-rev">'+(S.quiz.rev?'Masquer':'Révéler la réponse')+'</button></div>':'')+mediaManager("quiz")+'</section>';
+  }
+  if(m==="exemples"){
+    var ex=S.media.ex,np=Math.ceil(ex.length/2);
+    h+='<section class="card"><h3>Exemples : la planche, puis le film</h3>'+(np?'<div class="row-btns"><button class="btn" type="button" data-act="ex" data-d="-1"'+((S.exi||0)<=0?' disabled':'')+'>◀</button><span class="mono">'+((S.exi||0)+1)+' / '+np+'</span><button class="btn" type="button" data-act="ex" data-d="1"'+((S.exi||0)>=np-1?' disabled':'')+'>▶</button></div>':'')+'<p class="hint">Ajoute les images par paires : d\'abord la planche, puis l\'image du film. La première paire apparaît aussi dans le flash 1.</p>'+mediaManager("ex")+'</section>';
+  }
+  if(m==="palmares"){
+    h+='<section class="card"><h3>Cérémonie des prix</h3><p class="hint">Choisis un prix à la fois : il se révèle en grand. Un prix maximum par élève.</p>';
+    PRIZES.forEach(function(p){h+='<label class="field" for="pz-'+p[0]+'">'+p[1]+'<select id="pz-'+p[0]+'" data-prize="'+p[0]+'"><option value="">À découvrir</option>'+S.students.map(function(s){return '<option value="'+s.id+'"'+(S.prizes[p[0]]===s.id?' selected':'')+'>'+esc(s.name)+'</option>'}).join("")+'</select></label>'});
+    h+='</section>';
+  }
+  return h;
+}
+function mediaManager(kind){
+  if(!assets)return '<p class="hint">L\'ajout d\'images n\'est pas disponible sur cet appareil.</p>';
+  var L=S.media[kind],h='<label class="btn" style="display:inline-block;text-align:center" for="up-'+kind+'">Ajouter des images<input id="up-'+kind+'" type="file" accept="image/*" multiple data-up="'+kind+'" hidden></label>';
+  if(L.length){h+='<div class="thumbs">';L.forEach(function(it,i){var id=kind==="quiz"?it.id:it,cur=kind==="quiz"?S.quiz.i===i:Math.floor(i/2)===(S.exi||0);
+    h+='<div class="thumb'+(cur?' cur':'')+'"><img src="'+blob(id)+'" alt=""><button class="pick" type="button" aria-label="Afficher" data-act="pick-'+kind+'" data-i="'+i+'"></button><div class="tb">'+(kind==="quiz"?'<select aria-label="Bonne réponse" data-qa="'+i+'"><option value="">Réponse ?</option>'+VALEURS.map(function(v){return '<option'+(v===it.a?' selected':'')+'>'+v+'</option>'}).join("")+'</select>':'<span class="x" style="pointer-events:none">'+(i%2?'Film':'Planche')+'</span>')+'<button class="x" type="button" aria-label="Retirer" data-act="rm-media" data-kind="'+kind+'" data-i="'+i+'">✕</button></div></div>'});h+='</div>'}
+  return h;
+}
+function tEleves(){
+  var h='<section class="card"><h2>Élèves</h2><div class="list">';
+  ranked().forEach(function(s){
+    h+='<div class="stu"><div class="stu-top"><b>'+esc(s.name)+'</b><span class="pts mono">'+s.xp+' XP</span></div><div class="row-btns">'+[-5,5,10,25].map(function(v){return '<button class="btn sm" type="button" data-act="xp" data-id="'+s.id+'" data-v="'+v+'">'+(v>0?'+':'−')+Math.abs(v)+'</button>'}).join("")+
+     '<select class="sel" style="width:auto;flex:1;min-width:120px;padding:5px 8px;font-size:13px" data-give="'+s.id+'" aria-label="Donner un bonus à '+esc(s.name)+'"><option value="">+ Bonus…</option>'+["coup","doublure","director","associe"].map(function(k){return '<option value="'+k+'">'+CARDS[k].full+'</option>'}).join("")+'</select></div>';
+    if((s.cards||[]).length)h+='<div class="row-btns">'+s.cards.map(function(c,ci){return CARDS[c]?'<button class="chip '+c+'" type="button" data-act="use-card" data-id="'+s.id+'" data-ci="'+ci+'" title="Toucher quand le bonus est joué">'+CARDS[c].n+' ✓</button>':''}).join("")+'<span class="hint">Touche un bonus quand il est joué.</span></div>';
+    h+='<div class="row-btns"><button class="btn sm ghost '+(armed["rm-"+s.id]?'armed':'danger')+'" type="button" data-act="rm" data-id="'+s.id+'">'+(armed["rm-"+s.id]?'Confirmer : retirer '+esc(s.name):'Absent : retirer')+'</button></div></div>';
+  });
+  h+='</div><div class="grid2"><input class="sel" id="new-name" placeholder="Prénom" aria-label="Prénom du nouvel élève"><button class="btn" type="button" data-act="add">Ajouter un élève</button></div></section>';
+  h+='<section class="card"><h3>XP pour une raison précise</h3><div class="grid2"><select class="sel" id="xf-who" aria-label="Élève">'+S.students.map(function(s){return '<option value="'+s.id+'">'+esc(s.name)+'</option>'}).join("")+'</select><input class="sel" id="xf-v" type="number" value="15" aria-label="XP"></div><button class="btn pri" type="button" data-act="xp-free">Donner</button></section>';
+  h+='<section class="card"><h3>Classement et Joker</h3>'+(S.closed?'<p class="hint">Classement arrêté.</p><button class="btn" type="button" data-act="reopen">Rouvrir le classement</button>':'<p class="hint">Jeudi à 17h : le 1er reçoit le Joker.</p><button class="btn '+(armed.close?'armed':'pri')+'" type="button" data-act="close-rank">'+(armed.close?'Confirmer : arrêter et donner le Joker':'Arrêter le classement et donner le Joker')+'</button>')+'</section>';
+  var bks=Object.keys(G.bk||{}).sort(function(a,b){return (G.bk[b].at||0)-(G.bk[a].at||0)});
+  h+='<section class="card"><h3>Sauvegardes</h3><p class="hint">Tout est enregistré en ligne en continu : élèves, XP, bonus, tirages et notes. En plus, une copie complète est faite toutes les 5 minutes (une par jour), et juste avant chaque remise à zéro.</p><div class="row-btns"><button class="btn" type="button" data-act="bk-now">Faire une sauvegarde maintenant</button>'+(downloads?'<button class="btn ghost" type="button" data-act="bk-dl">Télécharger une copie (fichier)</button>':'')+'</div>';
+  if(bks.length){h+='<div class="list">';bks.slice(0,12).forEach(function(k){h+='<div class="li bk"><span class="t">'+esc(bkLabel(k,G.bk[k].at))+'</span><button class="btn sm '+(armed["bk-"+k]?'armed':'ghost')+'" type="button" data-act="bk-restore" data-bk="'+esc(k)+'">'+(armed["bk-"+k]?'Confirmer la restauration':'Restaurer')+'</button></div>'});h+='</div>'}
+  h+='</section>';
+  h+='<section class="card"><h3>Remise à zéro</h3><p class="hint">Après tes essais : remet les XP, bonus, tirages et prix à zéro. Garde les élèves et les images.</p><button class="btn '+(armed.reset?'armed':'danger')+'" type="button" data-act="reset">'+(armed.reset?'Confirmer la remise à zéro':'Tout remettre à zéro')+'</button></section>';
+  return h;
+}
+function grades(sid){
+  var n=G.notes[sid]||{},r=n.r||[],f=n.f||[];
+  var rn=r.filter(function(x){return x!=null}),fn=f.filter(function(x){return x!=null});
+  var parc=rn.length?r.reduce(function(a,b){return a+(b||0)},0)/3.5:null;
+  var prof=fn.length?f.reduce(function(a,b){return a+(b||0)},0)/2:null;
+  var fs=G.fiches.filter(function(x){return x.to===sid&&x.from!==sid}),pe=null;
+  if(fs.length){var t=0;for(var c=0;c<4;c++){var v=fs.map(function(x){return x.c&&x.c[c]}).filter(function(x){return x!=null});t+=v.length?v.reduce(function(a,b){return a+b},0)/v.length:0}pe=t/2}
+  var fin=prof==null?null:(pe==null?prof:0.75*prof+0.25*pe);
+  var cc=fs.filter(function(x){return x.cc}).length;
+  return {parc:parc,prof:prof,pe:pe,fin:fin,note:(parc!=null&&fin!=null)?parc+fin:null,n:fs.length,cc:cc};
+}
+function fmt(x){return x==null?"—":(Math.round(x*100)/100).toFixed(2).replace(".",",")}
+function stars(sid,kind,idx,val){var at=' data-act="star" data-id="'+sid+'" data-k="'+kind+'" data-i="'+idx+'"';var h='<div class="stars"><button class="zero'+(val===0?' on':'')+'" type="button" aria-label="0 étoile"'+at+' data-v="0">0</button>';for(var v=1;v<=5;v++)h+='<button class="star'+(val!=null&&v<=val?' on':'')+'" type="button" aria-label="'+v+' étoiles" data-act="star" data-id="'+sid+'" data-k="'+kind+'" data-i="'+idx+'" data-v="'+v+'">★</button>';return h+'<span class="sv mono">'+(val==null?'—':val+'/5')+'</span>'+(val!=null?'<button class="clr" type="button" aria-label="Effacer cette note"'+at+' data-v="x">✕</button>':'')+'</div>'}
+function tNotes(){
+  if(!db)return '<section class="card"><h2>Notes</h2><p class="hint">Les notes ne sont pas disponibles ici. Utilise le tableur.</p></section>';
+  var h='<section class="card"><h2>Bilan</h2><div class="tw"><table class="gt"><thead><tr><th>Élève</th><th>Parcours /10</th><th>Final /10</th><th>Note /20</th><th>♥</th></tr></thead><tbody>';
+  S.students.forEach(function(s){var g=grades(s.id);h+='<tr><td>'+esc(s.name)+'</td><td>'+fmt(g.parc)+'</td><td>'+fmt(g.fin)+'</td><td class="n">'+fmt(g.note)+'</td><td>'+g.cc+'</td></tr>'});
+  h+='</tbody></table></div><div class="row-btns">'+(downloads?'<button class="btn" type="button" data-act="csv">Télécharger le tableau (CSV)</button>':'')+'<button class="btn ghost" type="button" data-act="copy">Copier pour Excel</button></div><p class="hint">Les notes ne sont visibles que par toi, jamais sur l\'écran élèves.</p></section>';
+  S.students.forEach(function(s){
+    var n=G.notes[s.id]||{},r=n.r||[],f=n.f||[],g=grades(s.id);
+    h+='<details class="nd" data-sid="'+s.id+'"'+(openN[s.id]?' open':'')+'><summary>'+esc(s.name)+' · '+fmt(g.note)+' / 20</summary><div class="list"><h3>Rendus (étoiles)</h3><div class="crit">';
+    RENDUS.forEach(function(lb,i){h+='<span>'+lb+'</span>'+stars(s.id,"r",i,r[i])});
+    h+='</div><h3>Final : ta grille (0 à 5)</h3><div class="crit">';
+    CRITS.forEach(function(lb,i){h+='<span>'+lb+'</span>'+stars(s.id,"f",i,f[i])});
+    h+='</div><p class="hint">Camarades : '+g.n+' fiche'+(g.n>1?'s':'')+' reçue'+(g.n>1?'s':'')+' · moyenne '+fmt(g.pe)+' / 10</p><div class="row-btns"><button class="btn sm ghost '+(armed["clrn-"+s.id]?'armed':'danger')+'" type="button" data-act="clr-note" data-id="'+s.id+'">'+(armed["clrn-"+s.id]?'Confirmer : effacer les étoiles de '+esc(s.name):'Effacer ses étoiles')+'</button></div></div></details>';
+  });
+  h+='<section class="card"><h3>Remettre les notes à zéro</h3><p class="hint">Efface toutes les étoiles (rendus et grille finale) de tous les élèves. Les fiches des camarades restent.</p><button class="btn '+(armed.clrall?'armed':'danger')+'" type="button" data-act="clr-all">'+(armed.clrall?'Confirmer : effacer toutes les étoiles':'Effacer toutes les étoiles')+'</button></section>';
+  h+='<section class="card"><h3>Ajouter une fiche de camarade (vendredi)</h3><div class="grid2"><label class="field" for="fi-from">Qui note<select id="fi-from">'+S.students.map(function(s){return '<option value="'+s.id+'">'+esc(s.name)+'</option>'}).join("")+'</select></label><label class="field" for="fi-to">Le film de<select id="fi-to">'+S.students.map(function(s,i){return '<option value="'+s.id+'"'+(i===1?' selected':'')+'>'+esc(s.name)+'</option>'}).join("")+'</select></label></div><div class="crit">'+CRITS.map(function(lb,i){return '<span>'+lb+'</span><select class="sel" id="fi-c'+i+'" aria-label="'+lb+'"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>'}).join("")+'<span>Coup de cœur</span><select class="sel" id="fi-cc"><option value="0">Non</option><option value="1">Oui</option></select></div><button class="btn pri" type="button" data-act="add-fiche">Enregistrer la fiche</button>';
+  if(G.fiches.length){h+='<div class="list">';G.fiches.slice().reverse().slice(0,40).forEach(function(x){var a=byId(x.from),b=byId(x.to);h+='<div class="li"><span class="t">'+esc(a?a.name:"?")+' → '+esc(b?b.name:"?")+' <small>'+(x.c||[]).join(" · ")+(x.cc?' · ♥':'')+(x.from===x.to?' · ignorée (soi-même)':'')+'</small></span><button class="btn sm ghost" type="button" data-act="rm-fiche" data-fid="'+x._id+'">✕</button></div>'});h+='</div>'}
+  return h+'</section>';
+}
+function tKit(){
+  var h='<div class="kit">';
+  h+='<section class="card"><h2>Ouverture</h2><h3>Entrée en scène du producteur (lundi, à l\'ouverture)</h3><ol><li>« Bonjour et bienvenue chez Storyboard Quest. Je suis votre producteur. »</li><li>« Le studio a besoin de nouveaux réalisateurs. Vous n\'avez jamais réalisé ? Parfait : personne ne naît réalisateur. »</li><li>« Vendredi, chacun de vous projettera son premier film devant tout le studio. »</li><li>« Ici, une seule règle : on ose. On juge la clarté des idées, pas la qualité du dessin. »</li><li>« Avant de commencer, il me faut votre signature. »</li></ol><button class="btn" type="button" data-act="mode" data-m="contrat">Projeter le contrat</button></section>';
+  h+='<section class="card"><h2>Objectifs</h2><table class="kt"><tbody>'+Object.keys(OBJ).map(function(k){var p=k.split("-");return '<tr><td>'+DSHORT[+p[0]-1]+' '+(p[1]==="matin"?"matin":"aprèm")+'</td><td>'+OBJ[k]+'</td></tr>'}).join("")+'</tbody></table></section>';
+  h+='<section class="card"><h2>Les 8 valeurs de plan</h2><p>On dit aussi plan général pour le PGE et plan large pour le PE. Un <b>insert</b> est un gros plan sur un objet.</p><table class="kt"><tbody>'+VALEURS.map(function(v,i){return '<tr><td>'+v+'</td><td>'+VDESC[i]+'</td></tr>'}).join("")+'</tbody></table></section>';
+  h+='<section class="card"><h2>Mercredi en autonomie</h2><p>Le matin, chacun écrit le découpage technique de son histoire. L\'après-midi, il dessine le storyboard du découpage qu\'il a reçu. Le texte des missions est sur l\'écran « Mercredi » ; copie-le dans Classroom avec les histoires et le modèle.</p><h3>Les 8 histoires</h3><ol>'+MER.map(function(x){return '<li><b>'+esc(x[0])+'.</b> '+esc(x[1])+'</li>'}).join("")+'</ol><h3>Modèle et découpage de secours : '+esc(MODELE.t)+'</h3><p>'+esc(MODELE.h)+'</p><div class="tw"><table class="kt"><thead><tr>'+MER_COLS.map(function(c){return '<th>'+c+'</th>'}).join("")+'</tr></thead><tbody>'+MODELE.rows.map(function(r){return '<tr>'+r.map(function(c){return '<td>'+esc(c)+'</td>'}).join("")+'</tr>'}).join("")+'</tbody></table></div><p class="hint">Total : 45 secondes.</p></section>';
+  h+='<section class="card"><h2>Decks de tirage</h2>'+["roman","a180","genre","lieu","objet"].map(function(k){return '<h3>'+DECKS[k].n+'</h3><div class="tags">'+DECKS[k].items.map(function(v){return '<span class="tag">'+esc(v)+'</span>'}).join("")+'</div>'}).join("")+'</section>';
+  h+='<section class="card"><h2>Bonus de production</h2><table class="kt"><tbody>'+["coup","doublure","director","associe","joker"].map(function(k){return '<tr><td><span class="chip '+k+'">'+CARDS[k].n+'</span></td><td>'+CARDS[k].d+'</td></tr>'}).join("")+'</tbody></table><p class="hint">Le meilleur de chaque demi-journée gagne un bonus. Il se joue une fois et s\'annonce avant le défi.</p></section>';
+  h+='<section class="card"><h2>Grille 5 étoiles (7 rendus)</h2><ul><li>★ Rendu : le travail est remis à l\'heure.</li><li>★ Complet : le format est respecté.</li><li>★ Lisible : on comprend sans explication.</li><li>★ Brique : la notion du jour est utilisée.</li><li>★ Audace : une idée ou un choix qui surprend.</li></ul><table class="kt"><thead><tr><th>Rendu</th><th>La brique attendue</th></tr></thead><tbody><tr><td>R1 · 6 cases</td><td>Une histoire complète : début, milieu, fin</td></tr><tr><td>R2 · 3 émotions</td><td>La valeur et l’angle servent l’émotion</td></tr><tr><td>R3 · Rendez-vous</td><td>180° respectés, champ-contrechamp, raccord regard, numérotation 1.1…</td></tr><tr><td>R4 · Poursuite</td><td>Direction constante, mouvements notés selon la convention</td></tr><tr><td>R5 · Bon tempo</td><td>Durées choisies, son, 30 s</td></tr><tr><td>R6 · Pitch</td><td>Accroche, histoire, promesse</td></tr><tr><td>R7 · Mercredi</td><td>Un découpage qu’on peut dessiner sans poser de question, et un storyboard fidèle au découpage reçu</td></tr></tbody></table><p class="hint">Parcours /10 = étoiles des 7 rendus ÷ 3,5.</p></section>';
+  h+='<section class="card"><h2>Grille du festival</h2><table class="kt"><thead><tr><th>Critère</th><th>1 · Tenté</th><th>3 · Réussi</th><th>5 · Brillant</th></tr></thead><tbody><tr><td>Lisibilité</td><td>On devine avec des explications</td><td>On comprend seul</td><td>Limpide d\'emblée</td></tr><tr><td>Audace</td><td>Idée attendue</td><td>Un choix qui surprend</td><td>Un vrai parti pris</td></tr><tr><td>Langage ciné</td><td>Peu de variété</td><td>Plans, raccords et rythme bien choisis</td><td>Chaque cadre sert l\'émotion</td></tr><tr><td>Pitch</td><td>Hésitant</td><td>Clair, donne envie</td><td>La salle veut voir le film</td></tr></tbody></table><p class="hint">Final /10 = 75 % ta grille + 25 % camarades. Note /20 = parcours + final.</p></section>';
+  h+='<section class="card"><h2>Grille des camarades</h2><p>Chaque élève note les autres films de 1 à 5 sur les 4 critères, jamais le sien, et donne un seul coup de cœur (Prix du public).</p></section>';
+  h+='<section class="card"><h2>Prix</h2><table class="kt"><tbody>'+PRIZES.map(function(p){return '<tr><td>'+p[1]+'</td><td>« '+p[2]+' »</td></tr>'}).join("")+'</tbody></table></section>';
+  return h+'</div>';
+}
+
+/* =================== RENDU, TIC-TAC =================== */
+function render(flip){
+  if(!S){return}
+  if(view()==="prod")renderProd();else renderProj(flip);
+}
+setInterval(function(){
+  if(!S)return;
+  var tp=timerParts(),el=document.getElementById("tc");
+  if(el){el.textContent=tp.txt;el.className=el.className.replace(/\b(idle|low|done)\b/g,"").trim()+(tp.cls?" "+tp.cls:"")}
+  var l=document.getElementById("tcl");if(l)l.innerHTML=tcLab(tp);
+  var b=document.getElementById("tcb");if(b)b.style.width=tp.pct+"%";
+  [].forEach.call(document.querySelectorAll("[data-ptc]"),function(e){e.textContent=tp.txt;e.className=e.className.replace(/\b(idle|low|done)\b/g,"").trim()+(tp.cls?" "+tp.cls:"")});
+  [].forEach.call(document.querySelectorAll("[data-ptcl]"),function(e){e.innerHTML=tcLab(tp)});
+  [].forEach.call(document.querySelectorAll("[data-ptcb]"),function(e){e.style.width=tp.pct+"%"});
+  var ck=document.getElementById("clock");if(ck){var d=new Date();ck.textContent=String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")}
+},250);
+
+/* =================== ENREGISTREMENT =================== */
+function setSync(s){syncState=s;var el=document.getElementById("sync");if(el)el.className="sync "+(s==="busy"?"busy":s==="err"?"err":"")}
+var dirty=false,saving=false;
+function commit(){render();dirty=true;setSync("busy");clearTimeout(saveT);saveT=setTimeout(save,250)}
+function save(){
+  if(!db)return;
+  if(saving){saveT=setTimeout(save,200);return}
+  var body=JSON.parse(JSON.stringify(S));saving=true;
+  db.doc("live/state").set(body).then(function(){saving=false;if(JSON.stringify(S)===JSON.stringify(body)){dirty=false;setSync("ok")}if(Date.now()-lastBk>5*60000)backup();},function(e){saving=false;dirty=false;setSync("err");toast("Enregistrement impossible"+(e&&e.code?" ("+e.code+")":"")+". Réessaie.")});
+}
+function toast(t){var o=document.createElement("div");o.className="toast";o.textContent=t;document.body.appendChild(o);setTimeout(function(){o.remove()},2500)}
+var noteQ={},openN={};
+var notePend={};
+function saveNote(sid){var n=G.notes[sid]||{};var body={r:(n.r||[]).slice(),f:(n.f||[]).slice()};notePend[sid]={v:body,t:Date.now()};
+  var p=(noteQ[sid]||Promise.resolve()).then(function(){return db.doc("notes/"+sid).set(body)}).catch(function(){toast("Note non enregistrée, réessaie.")});noteQ[sid]=p}
+function sameNote(a,b){var z=function(x){x=x||{};var c=function(v){v=(v||[]).slice();while(v.length&&v[v.length-1]==null)v.pop();return v.map(function(y){return y==null?null:y})};return JSON.stringify([c(x.r),c(x.f)])};return z(a)===z(b)}
+
+/* =================== ACTIONS =================== */
+function launch(it,key){
+  S.challenge={key:key,title:it.t,desc:it.d,xp:it.x,type:it.type||"defi",v:!!it.v,n:(S.challenge&&S.challenge.n||0)+1};secretV=null;
+  var tm=(it.type==null||timed(it))?it.m*60:0;S.timer={running:false,endsAt:0,remaining:tm,total:tm,base:tm};
+  var a=it.a;S.mode=a?a.mode:"seq";if(a&&a.mode==="flash")S.flash={k:a.k,i:0};if(a&&a.mode==="pieges")S.pieges={p:0,rev:false};
+  if(S.mode!=="tirage")S.draw=null;if(!it.k)S.pairs=[];S.guest=null;
+}
+function arm(k){armed[k]=true;render();setTimeout(function(){if(armed[k]){delete armed[k];render()}},4000)}
+app.addEventListener("click",function(ev){
+  var t=ev.target.closest("[data-tab]");if(t){tab=t.getAttribute("data-tab");lsSet("sq-tab",tab);render();window.scrollTo(0,0);return}
+  var b=ev.target.closest("[data-act]");if(!b||!S)return;
+  var a=b.getAttribute("data-act"),id=b.getAttribute("data-id"),s=id&&byId(id),val=function(x){var e=document.getElementById(x);return e?e.value:""};
+  switch(a){
+   case"cast":ssSet("sq-screen","1");location.hash="projection";try{var de=document.documentElement;if(de.requestFullscreen)de.requestFullscreen().catch(function(){})}catch(e){}return;
+   case"quit":ssSet("sq-screen","0");try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}if(location.hash)location.hash="producteur";render();return;
+   case"next":var nn=nextOf();if(!nn)return;S.day=nn.d;S.slot=nn.s;launch(PROGRAM[nn.d+"-"+nn.s][nn.i],nn.d+"-"+nn.s+"-"+nn.i);break;
+   case"launch":var i=+b.getAttribute("data-i");launch(PROGRAM[S.day+"-"+S.slot][i],S.day+"-"+S.slot+"-"+i);break;
+   case"launch-custom":var tt=val("c-t").trim();if(!tt){document.getElementById("c-t").focus();return}launch({t:tt,d:val("c-d").trim(),m:Math.max(1,+val("c-m")||10),x:val("c-x").trim()},"custom-"+Date.now());S.mode="seq";break;
+   case"t-start":S.timer.endsAt=Date.now()+S.timer.remaining*1000;S.timer.running=true;break;
+   case"t-pause":S.timer.remaining=timerParts().rem;S.timer.running=false;break;
+   case"t-plus":if(S.timer.base==null)S.timer.base=S.timer.total;if(S.timer.running)S.timer.endsAt+=60000;else S.timer.remaining+=60;S.timer.total+=60;break;
+   case"t-minus":if(S.timer.base==null)S.timer.base=S.timer.total;var rm=timerParts().rem,cut=Math.min(60,rm);if(S.timer.running)S.timer.endsAt-=cut*1000;else S.timer.remaining-=cut;S.timer.total=Math.max(60,S.timer.total-60);break;
+   case"t-reset":var bs=S.timer.base||S.timer.total;S.timer.running=false;S.timer.total=bs;S.timer.remaining=bs;S.timer.endsAt=0;break;
+   case"mode":S.mode=b.getAttribute("data-m");if(tab!=="ecran")toast("À l'écran : "+modeName(S.mode));break;
+   case"flash":S.flash={k:+b.getAttribute("data-k"),i:0};S.mode="flash";break;
+   case"slide":var SL=slides(S.flash.k);S.flash.i=Math.max(0,Math.min(SL.length-1,S.flash.i+(+b.getAttribute("data-d"))));break;
+   case"trap":S.pieges.p=Math.max(0,Math.min(5,S.pieges.p+(+b.getAttribute("data-d"))));S.pieges.rev=false;break;
+   case"trap-rev":S.pieges.rev=!S.pieges.rev;break;
+   case"quiz":S.quiz.i=Math.max(0,Math.min(quizItems().length-1,S.quiz.i+(+b.getAttribute("data-d"))));S.quiz.rev=false;break;
+   case"quiz-rev":S.quiz.rev=!S.quiz.rev;break;
+   case"pick-quiz":S.quiz.i=+b.getAttribute("data-i");S.quiz.rev=false;S.mode="quiz";break;
+   case"ex":S.exi=Math.max(0,(S.exi||0)+(+b.getAttribute("data-d")));break;
+   case"pick-ex":S.exi=Math.floor(+b.getAttribute("data-i")/2);S.mode="exemples";break;
+   case"rm-media":var kd=b.getAttribute("data-kind"),mi=+b.getAttribute("data-i");S.media[kd].splice(mi,1);if(kd==="quiz")S.quiz.i=Math.min(S.quiz.i,Math.max(0,S.media.quiz.length-1));break;
+   case"draw-one":var k=b.getAttribute("data-k");S.draw={title:DECKS[k].n,who:null,items:[{l:DECKS[k].n,v:pick(DECKS[k].items)}],k:String(Date.now())};break;
+   case"draw-proj":var p={genre:pick(DECKS.genre.items),lieu:pick(DECKS.lieu.items),objet:pick(DECKS.objet.items)};S.projects[id]=p;S.draw={title:"Mission de réalisateur",who:id,items:[{l:"Genre",v:p.genre},{l:"Lieu",v:p.lieu},{l:"Objet",v:p.objet}],k:String(Date.now())};if(S.mode!=="tirage")S.mode="tirage";break;
+   case"draw-clear":S.draw=null;break;
+   case"pairs":var ids=shuffle(S.students.map(function(x){return x.id}));S.guest=null;S.pairs=[];for(var j=0;j+1<ids.length;j+=2)S.pairs.push([ids[j],ids[j+1]]);if(ids.length%2&&S.pairs.length)S.pairs[S.pairs.length-1].push(ids[ids.length-1]);S.mode="seq";break;
+   case"pairs-clear":S.pairs=[];S.guest=null;break;
+   case"xp":s.xp+=+b.getAttribute("data-v");break;
+   case"mer-draw":if(merList().length&&!armed.mer){arm("mer");return}delete armed.mer;var o=shuffle(S.students.map(function(x){return x.id})),ks=shuffle(MER.map(function(_,i){return i}));S.mer={a:o.map(function(id,i){return {id:id,k:ks[i%ks.length],to:o[(i+1)%o.length]}})};S.mode="mercredi";S.merp=1;break;
+   case"mer-page":S.mode="mercredi";S.merp=+b.getAttribute("data-p");break;
+   case"xp-all":var va=+b.getAttribute("data-v");S.students.forEach(function(x){x.xp+=va});toast("+"+va+" XP à tous");break;
+   case"xp-pair":var vp=+b.getAttribute("data-v");b.getAttribute("data-ids").split(",").forEach(function(k){var x=byId(k);if(x)x.xp+=vp});break;
+   case"secret":var pool=VALEURS.filter(function(v){return !secretV||secretV.indexOf(v)!==0});secretV=pick(pool)+" · "+pick(SUJETS);render();return;
+   case"t-1min":S.timer={running:true,endsAt:Date.now()+60000,remaining:60,total:60,base:S.timer.base||60};break;
+   case"draw-k":var dk=b.getAttribute("data-k");S.draw={title:DECKS[dk].n,who:null,items:[{l:DECKS[dk].n,v:pick(DECKS[dk].items)}],k:String(Date.now())};S.mode="seq";break;
+   case"xp-free":var w=byId(val("xf-who")),n=Math.round(+val("xf-v")||0);if(!w||!n)return;w.xp+=n;toast(w.name+" : "+(n>0?"+":"")+n+" XP");break;
+   case"use-card":s.cards.splice(+b.getAttribute("data-ci"),1);break;
+   case"rm":if(!armed["rm-"+id]){arm("rm-"+id);return}delete armed["rm-"+id];S.students=S.students.filter(function(x){return x.id!==id});S.pairs=S.pairs.filter(function(pp){return pp.indexOf(id)<0});if(S.guest===id)S.guest=null;delete S.projects[id];PRIZES.forEach(function(pz){if(S.prizes[pz[0]]===id)delete S.prizes[pz[0]]});break;
+   case"add":var nm=val("new-name").trim();if(!nm){document.getElementById("new-name").focus();return}S.students.push({id:"e"+Date.now().toString(36),name:nm,xp:0,cards:[]});break;
+   case"close-rank":if(!armed.close){arm("close");return}delete armed.close;var top=ranked()[0];if(!top)return;S.closed=true;top.cards.push("joker");break;
+   case"reopen":S.closed=false;S.students.forEach(function(x){var ji=x.cards.indexOf("joker");if(ji>=0)x.cards.splice(ji,1)});break;
+   case"reset":if(!armed.reset){arm("reset");return}delete armed.reset;backup("avant-remise-"+Date.now());S.students.forEach(function(x){x.xp=0;x.cards=[]});S.pairs=[];S.guest=null;S.draw=null;S.projects={};S.prizes={};S.closed=false;S.challenge=null;S.day=1;S.slot="matin";S.mode="seq";S.timer={running:false,endsAt:0,remaining:300,total:300};toast("Studio remis à zéro");break;
+   case"star":var sid=id,kk=b.getAttribute("data-k"),ii=+b.getAttribute("data-i"),rv=b.getAttribute("data-v");G.notes[sid]=G.notes[sid]||{r:[],f:[]};var arr=G.notes[sid][kk]=(G.notes[sid][kk]||[]).slice();while(arr.length<=ii)arr.push(null);var vv=rv==="x"?null:+rv;arr[ii]=vv;openN[sid]=1;saveNote(sid);render();return;
+   case"clr-note":if(!armed["clrn-"+id]){arm("clrn-"+id);return}delete armed["clrn-"+id];G.notes[id]={r:[],f:[]};openN[id]=1;saveNote(id);render();toast("Étoiles effacées");return;
+   case"clr-all":if(!armed.clrall){arm("clrall");return}delete armed.clrall;S.students.forEach(function(x){G.notes[x.id]={r:[],f:[]};saveNote(x.id)});render();toast("Toutes les étoiles sont effacées");return;
+   case"add-fiche":var fr=val("fi-from"),to=val("fi-to");if(fr===to){toast("On ne se note pas soi-même.");return}if([0,1,2,3].some(function(i){return !val("fi-c"+i)})){toast("Choisis une note pour les 4 critères.");return}db.collection("fiches").add({from:fr,to:to,c:[0,1,2,3].map(function(i){return +val("fi-c"+i)}),cc:val("fi-cc")==="1",at:Date.now()}).then(function(){toast("Fiche enregistrée")},function(){toast("Fiche non enregistrée, réessaie.")});return;
+   case"rm-fiche":db.doc("fiches/"+b.getAttribute("data-fid")).delete().catch(function(){toast("Suppression impossible")});return;
+   case"bk-now":backup("manuel-"+Date.now()).then(function(){toast("Sauvegarde faite")});return;
+   case"bk-dl":var dump=JSON.stringify({at:new Date().toISOString(),state:S,notes:G.notes,fiches:G.fiches},null,1);downloads.save({filename:"sauvegarde-storyboard-quest-"+stamp()+".json",data:dump}).then(function(){toast("Copie téléchargée")},function(e){if(!e||e.code!=="declined")toast("Téléchargement impossible")});return;
+   case"bk-restore":var bk=b.getAttribute("data-bk");if(!armed["bk-"+bk]){arm("bk-"+bk);return}delete armed["bk-"+bk];var B=G.bk[bk];if(!B||!B.state)return;backup("avant-restauration-"+Date.now());S=defaults(JSON.parse(JSON.stringify(B.state)));Object.keys(B.notes||{}).forEach(function(k){G.notes[k]=B.notes[k];saveNote(k)});commit();toast("Sauvegarde restaurée");return;
+   case"csv":downloads.save({filename:"notes-storyboard-quest.csv",data:csv(";")}).then(function(){toast("Tableau téléchargé")},function(e){if(!e||e.code!=="declined")toast("Téléchargement impossible")});return;
+   case"copy":var txt=csv("\t");if(navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){toast("Copié : colle dans Excel")},function(){toast("Copie impossible sur cet appareil")});return;
+   default:return;
+  }
+  commit();
+});
+app.addEventListener("change",function(ev){
+  var t=ev.target;if(!S)return;
+  if(t.id==="r-day"||t.id==="r-slot"){if(t.id==="r-day")S.day=+t.value;else S.slot=t.value;lsSet("sq-open-list","1");commit();return}
+  var pj=t.getAttribute("data-pj");if(pj&&S.projects[pj]){S.projects[pj][t.getAttribute("data-k")]=t.value;var pp=S.projects[pj];S.draw={title:"Mission de réalisateur",who:pj,items:[{l:"Genre",v:pp.genre},{l:"Lieu",v:pp.lieu},{l:"Objet",v:pp.objet}],k:String(Date.now())};commit();return}
+  var pz=t.getAttribute("data-prize");if(pz!=null){if(t.value)S.prizes[pz]=t.value;else delete S.prizes[pz];S.mode="palmares";commit();return}
+  var gv=t.getAttribute("data-give");if(gv&&t.value){var st=byId(gv);if(st){st.cards.push(t.value);toast(st.name+" gagne : "+CARDS[t.value].full)}commit();return}
+  var qa=t.getAttribute("data-qa");if(qa!=null){S.media.quiz[+qa].a=t.value;commit();return}
+  var up=t.getAttribute("data-up");if(up&&t.files&&t.files.length&&assets){
+    var files=[].slice.call(t.files);toast("Envoi de "+files.length+" image"+(files.length>1?"s":"")+"…");
+    files.reduce(function(p,f){return p.then(function(){return assets.upload(f).then(function(r){if(up==="quiz")S.media.quiz.push({id:r.id,a:""});else S.media.ex.push(r.id)})})},Promise.resolve()).then(function(){commit();toast("Images ajoutées")},function(e){commit();toast("Une image n'a pas pu être envoyée"+(e&&e.message?" : "+e.message:""))});
+    return;
+  }
+});
+document.addEventListener("toggle",function(e){var d=e.target;if(d&&d.classList&&d.classList.contains("nd")){var k=d.getAttribute("data-sid");if(d.open)openN[k]=1;else delete openN[k]}},true);
+document.addEventListener("toggle",function(e){if(e.target&&e.target.id==="dl")lsSet("sq-open-list",e.target.open?"1":"0")},true);
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&route()==="projection"&&isEditor){location.hash=""}});
+window.addEventListener("hashchange",function(){render()});
+function csv(sep){
+  var head=["Élève"].concat(RENDUS,["Parcours /10"],CRITS,["Formateur /10","Camarades /10","Final /10","Note /20","Coups de cœur"]);
+  var rows=[head];S.students.forEach(function(s){var n=G.notes[s.id]||{},g=grades(s.id),r=n.r||[],f=n.f||[];rows.push([s.name].concat([0,1,2,3,4,5,6].map(function(i){return r[i]==null?"":r[i]}),[fmt(g.parc)],[0,1,2,3].map(function(i){return f[i]==null?"":f[i]}),[fmt(g.prof),fmt(g.pe),fmt(g.fin),fmt(g.note),g.cc]))});
+  return rows.map(function(r){return r.map(function(c){c=String(c).replace(/—/g,"");return /[";\t\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c}).join(sep)}).join("\n");
+}
+
+/* =================== DÉMARRAGE =================== */
+function poster(title,text,btn){app.innerHTML='<div class="poster"><div><span class="slate" aria-hidden="true"></span><h1>'+title+'</h1><p>'+text+'</p>'+(btn||'')+'</div></div>'}
+var ROSTER=["Aaron","Chloé","Clarisse","Lucile","Raphael","Awen","Guillaume"];
+app.addEventListener("click",function(e){var b=e.target.closest("[data-boot]");if(!b||!db)return;
+  b.disabled=true;b.textContent="Création…";
+  var init=defaults({v:3,students:ROSTER.map(function(n,i){return {id:"e"+(i+1),name:n,xp:0,cards:[]}}),challenge:null});
+  db.doc("live/state").set(init).then(function(){if(!S){S=defaults(JSON.parse(JSON.stringify(init)));render()}},function(err){b.disabled=false;b.textContent="Créer le studio";poster("Storyboard Quest","La création du studio a échoué"+(err&&err.code?" ("+esc(err.code)+")":"")+". Recharge la page et réessaie.",'<button class="btn pri" type="button" data-boot="1">Réessayer</button>')});
+});
+function start(){
+  if(!window.claude||!window.claude.use){poster("Storyboard Quest","Ouvre cette page dans Claude pour lancer le studio.");return}
+  Promise.all([window.claude.use("db"),window.claude.use("user"),window.claude.use("assets"),window.claude.use("downloads")]).then(function(r){
+    db=r[0];var user=r[1];assets=r[2];downloads=r[3];
+    if(!db){poster("Storyboard Quest","L'écran du studio est projeté en classe. Connecte-toi à Claude pour le suivre ici.");return}
+    var ed=user?user.canEdit():Promise.resolve(false);
+    ed.then(function(ok){isEditor=!!ok;
+      db.doc("live/state").onSnapshot(function(snap){
+        if(!snap.exists){
+          if(S)return;
+          if(snap.metadata&&snap.metadata.fromCache){poster("Storyboard Quest","Ouverture du studio…");return}
+          if(isEditor)poster("Storyboard Quest","Le studio n'est pas encore créé.",'<button class="btn pri" type="button" data-boot="1">Créer le studio</button>');else poster("Storyboard Quest","Le studio ouvre bientôt.");return}
+        var data=JSON.parse(JSON.stringify(snap.data()));
+        if(dirty&&S)return;
+        if(S&&JSON.stringify(data)===JSON.stringify(S))return;
+        var prev=S?JSON.parse(JSON.stringify(S)):null;S=defaults(data);
+        var flip=prev&&S.draw&&(!prev.draw||prev.draw.k!==S.draw.k);
+        if(view()==="prod"){var ae=document.activeElement,keep=ae&&ae.id&&(ae.tagName==="INPUT");if(!keep)render()}
+        else{render(flip);animateProj(prev)}
+      },function(e){poster("Storyboard Quest","Connexion au studio impossible"+(e&&e.code?" ("+esc(e.code)+")":"")+". Recharge la page.")});
+      if(isEditor){
+        db.collection("notes").onSnapshot(function(qs){var o={};qs.docs.forEach(function(d){o[d.id]=d.data()});Object.keys(notePend).forEach(function(k){if(o[k]&&sameNote(o[k],notePend[k].v)&&notePend[k].t&&Date.now()-notePend[k].t>3000)delete notePend[k];else o[k]=notePend[k].v});G.notes=o;if(tab==="notes"&&view()==="prod")render()},function(){});
+        db.collection("backups").onSnapshot(function(qs){var o={};qs.docs.forEach(function(d){o[d.id]=d.data()});G.bk=o;if(tab==="eleves"&&view()==="prod")render()},function(){});
+        db.collection("fiches").onSnapshot(function(qs){G.fiches=qs.docs.map(function(d){var x=d.data();x._id=d.id;return x}).sort(function(a,b){return (a.at||0)-(b.at||0)});if(tab==="notes"&&view()==="prod")render()},function(){});
+      }
+    });
+  }).catch(function(){poster("Storyboard Quest","Connexion au studio impossible pour le moment. Recharge la page.")});
+}
+start();
+})();
+</script>
+
+</html>
