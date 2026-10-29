@@ -403,11 +403,11 @@ var PROGRAM={
   I("defi",15,"Pictionary des plans","Un élève dessine au tableau une valeur de plan et un sujet. Les autres trouvent les deux. Le premier qui trouve marque.","5 XP par bonne réponse",{
    p:"Le grand écran tactile (avec une appli de dessin) ou un tableau et un feutre.",
    s:["Tire une carte secrète avec le bouton ci-dessous : une valeur de plan et un sujet (par exemple « Gros plan · un lion »). Elle n'apparaît que chez toi. Montre-la discrètement au dessinateur.","Il dessine en 45 secondes.","Le premier qui trouve la valeur ET le sujet gagne 5 XP et dessine à son tour. Exige le terme exact : « gros plan », pas « de près »."],t:["secret","xp"]}),
-  I("defi",35,"Chasse au cadre","En binôme : photographiez les 8 valeurs de plan dans l'école, en vous mettant en scène l'un l'autre. Une photo par valeur, dans l'ordre.","5 XP par valeur juste",{
+  I("defi",35,"Chasse au cadre","En binôme : photographiez les 8 valeurs de plan dans l'école, dans l'ordre. Trois contraintes : votre objet fil rouge apparaît sur les 8 photos ; au moins une plongée et une contre-plongée ; et une photo surprenante, le cadre le plus original possible.","5 XP par valeur juste · +5 XP par angle juste · +10 XP au cadre le plus original",{
    p:"Les téléphones. Cour et fenêtres autorisées pour le plan de grand ensemble. Un devoir Classroom « Chasse au cadre ».",
-   s:["Tire les binômes ci-dessous. Garde-les : les mêmes servent à la projection qui suit.","Les 8 valeurs restent affichées à l'écran pendant tout le défi.","Lance le chrono : 30 minutes, puis dépôt dans Classroom."],t:["pairs"],v:1}),
-  I("info",0,"Projection de la chasse","On regarde vos 8 plans. La salle annonce chaque valeur.","5 XP par valeur juste",{
-   s:["Mêmes binômes que pour la chasse : ils restent affichés ci-dessous.","Ouvre chaque série depuis Classroom sur le grand écran.","Pour chaque photo, la salle annonce la valeur. Si le binôme l'a bien cadrée : +5 XP au binôme (boutons ci-dessous)."],t:["pairs-keep","xp"],k:1,v:1}),
+   s:["Tire les binômes ci-dessous. Garde-les : les mêmes servent à la projection qui suit.","Tire un objet fil rouge par groupe (bouton ci-dessous) et annonce-le : il doit apparaître sur les 8 photos, du minuscule détail du PGE au très gros plan.","Rappelle les deux autres contraintes : au moins une plongée et une contre-plongée, et une photo pensée pour surprendre (cadre inattendu, point de vue d'un objet, reflet, amorce…).","Les 8 valeurs restent affichées à l'écran pendant tout le défi.","Lance le chrono : 30 minutes, puis dépôt dans Classroom, photos dans l'ordre."],t:["pairs","draw:fil"],v:1}),
+  I("info",0,"Projection de la chasse","On regarde vos 8 plans. La salle annonce chaque valeur et repère l'objet fil rouge.","5 XP par valeur juste · +5 XP par angle juste · +10 XP au cadre le plus original",{
+   s:["Mêmes binômes que pour la chasse : ils restent affichés ci-dessous.","Ouvre chaque série depuis Classroom sur le grand écran.","Pour chaque photo, la salle annonce la valeur. Si elle est juste et que l'objet fil rouge est visible : +5 XP au binôme.","Plongée et contre-plongée réussies : +5 XP chacune.","À la fin, vote à main levée pour le cadre le plus original de toute la chasse : +10 XP au binôme. Demande-lui ce qui rend ce cadre surprenant."],t:["pairs-keep","xp"],k:1,v:1}),
   PAUSE(),
   I("defi",25,"Quiz : quel plan ?","Une image, une question : quelle valeur de plan ? Le plus rapide gagne.","5 XP par bonne réponse",{
    p:"Conseillé : 10 à 15 images de films dans l'onglet Écran, mode Quiz (une valeur nette par image, réponse écrite sous chaque image). Sans images, le quiz utilise les 8 dessins du flash 2.",
@@ -535,6 +535,7 @@ var MODELE={t:"Le ticket de loterie",h:"Un homme gratte un ticket de loterie à 
 var MER_COLS=["Plan","Valeur","Angle","Mouvement","Durée","Action","Son","Raccord"];
 
 var DECKS={
+ fil:{n:"Objet fil rouge",items:["Une chaussure","Un gobelet","Une trousse","Une clé","Un livre","Un parapluie","Une casquette","Une bouteille d'eau","Un ballon","Une écharpe"]},
  roman:{n:"Histoire du roman-photo",items:[
   "La dernière chaise. A et B repèrent en même temps la dernière chaise libre. Ils accélèrent, puis se mettent à courir. A arrive le premier et s'assoit, triomphant. Il se relève aussitôt en grimaçant : il était assis sur un chewing-gum. B éclate de rire.",
   "La porte qui résiste. A veut passer une porte. Il pousse : elle ne s'ouvre pas. Il pousse plus fort, avec l'épaule, puis à deux mains. B arrive derrière lui, attend, puis tire simplement la porte vers lui. A, gêné, lui fait signe de passer en premier.",
