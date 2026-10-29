@@ -714,13 +714,14 @@ function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(M
 function defaults(s){
   s.students=s.students||[];s.day=s.day||1;s.slot=s.slot||"matin";s.timer=s.timer||{running:false,endsAt:0,remaining:300,total:300};
   s.mode=s.mode||"seq";s.flash=s.flash||{k:0,i:0};s.pieges=s.pieges||{p:0,rev:false};s.quiz=s.quiz||{i:0,rev:false};
-  s.projects=s.projects||{};s.prizes=s.prizes||{};s.pairs=s.pairs||[];s.media=s.media||{ex:[],quiz:[]};s.media.ex=s.media.ex||[];s.media.quiz=s.media.quiz||[];
+  s.projects=s.projects||{};s.prizes=s.prizes||{};s.pairs=(s.pairs||[]).map(function(p){return Array.isArray(p)?{m:p}:p});s.media=s.media||{ex:[],quiz:[]};s.media.ex=s.media.ex||[];s.media.quiz=s.media.quiz||[];
   return s;
 }
 function route(){var h=(location.hash||"").replace("#","");if(h==="producteur")return "prod";return (h==="projection"||ssGet("sq-screen")==="1")?"projection":"prod"}
 function ssGet(k){try{return sessionStorage.getItem(k)}catch(e){return null}}
 function ssSet(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}
 function view(){return isEditor&&route()!=="projection"?"prod":"proj"}
+function grp(p){return Array.isArray(p)?p:(p&&p.m)||[]}
 function itemAt(c){return c&&PROGRAM[c.d+"-"+c.s]?PROGRAM[c.d+"-"+c.s][c.i]:null}
 function timed(it){return it&&(it.type==="defi"||it.type==="note"||it.type==="atelier")}
 var TYPES={info:"",pause:"Pause",defi:"Défi",atelier:"Atelier",note:"Noté"};
@@ -759,7 +760,7 @@ function seqStage(flipDraw){
   var rendu=ty==="note";
   var h='<section class="stage"><div class="seq-eyebrow">'+(ty==="note"?'<b>Rendu noté</b>':ty==="defi"?'<b>Défi</b>':ty==="atelier"?'<b>Atelier</b>':'Séquence <b>'+String(C.n||0).padStart(2,"0")+'</b>')+'</div><h1 class="seq-title'+(rendu?' rendu':'')+'">'+esc(C.title)+'</h1>'+(C.desc?'<p class="seq-desc'+(C.desc.length>200?' long':'')+'">'+esc(C.desc)+'</p>':'')+(C.v?'<div class="vstrip">'+SVG.valeurs.map(function(sv,i){return '<figure>'+sv.replace(/ aria-label="[^"]*"/,"")+'<figcaption>'+esc(VALEURS[i])+'</figcaption></figure>'}).join("")+'</div>':'')+(C.xp?'<span class="seq-xp">'+esc(C.xp)+'</span>':'');
   if(S.draw&&S.mode==="seq")h+=drawCards(flipDraw);
-  if(S.pairs.length||S.guest){h+='<div class="pairs">';S.pairs.forEach(function(p){var nm=p.map(byId).filter(Boolean).map(function(x){return esc(x.name)});if(nm.length)h+='<span class="pair">'+nm.join('<i>+</i>')+'</span>'});h+='</div>'}
+  if(S.pairs.length||S.guest){h+='<div class="pairs">';S.pairs.forEach(function(p){var nm=grp(p).map(byId).filter(Boolean).map(function(x){return esc(x.name)});if(nm.length)h+='<span class="pair">'+nm.join('<i>+</i>')+'</span>'});h+='</div>'}
   h+='<div class="seq-fill"></div>'+(S.timer.total>0?'<div class="tc"><div id="tc" class="tc-num '+tp.cls+'">'+tp.txt+'</div><div class="tc-lab" id="tcl">'+tcLab(tp)+'</div></div><div class="tc-bar"><i id="tcb" style="width:'+tp.pct+'%"></i></div>':'')+'</section>';
   return h;
 }
@@ -925,7 +926,7 @@ function tool(t,it){
   }
   else if(t==="pairs"||t==="pairs-keep"){
     h='<div class="tool"><h3>'+(t==="pairs-keep"?'Les binômes de la chasse':'Binômes (trio si nombre impair)')+'</h3>'+(t==="pairs"?'<div class="row-btns"><button class="btn pri" type="button" data-act="pairs">'+(S.pairs.length?'Retirer au sort':'Tirer les binômes')+'</button>'+(S.pairs.length?'<button class="btn ghost" type="button" data-act="pairs-clear">Effacer</button>':'')+'</div>':(S.pairs.length?'':'<p class="hint">Aucun binôme en mémoire. Relance « Chasse au cadre » pour les tirer.</p>'));
-    if(S.pairs.length){var hasXp=it&&it.tools.indexOf("xp")>=0;h+='<div class="list">';S.pairs.forEach(function(pp){var nm=pp.map(byId).filter(Boolean).map(function(x){return esc(x.name)});if(nm.length)h+='<div class="li"><span class="t">'+nm.join(' + ')+(pp.length>2?' <small>trio</small>':'')+'</span>'+(hasXp?'<span class="row-btns">'+[5,10].map(function(v){return '<button class="btn sm" type="button" data-act="xp-pair" data-ids="'+pp.join(",")+'" data-v="'+v+'">+'+v+'</button>'}).join("")+'</span>':'')+'</div>'});h+='</div>'}
+    if(S.pairs.length){var hasXp=it&&it.tools.indexOf("xp")>=0;h+='<div class="list">';S.pairs.forEach(function(pp){var nm=grp(pp).map(byId).filter(Boolean).map(function(x){return esc(x.name)});if(nm.length)h+='<div class="li"><span class="t">'+nm.join(' + ')+(grp(pp).length>2?' <small>trio</small>':'')+'</span>'+(hasXp?'<span class="row-btns">'+[5,10].map(function(v){return '<button class="btn sm" type="button" data-act="xp-pair" data-ids="'+grp(pp).join(",")+'" data-v="'+v+'">+'+v+'</button>'}).join("")+'</span>':'')+'</div>'});h+='</div>'}
     h+='</div>';
   }
   else if(t.indexOf("draw:")===0){
@@ -1143,7 +1144,7 @@ app.addEventListener("click",function(ev){
    case"draw-one":var k=b.getAttribute("data-k");S.draw={title:DECKS[k].n,who:null,items:[{l:DECKS[k].n,v:pick(DECKS[k].items)}],k:String(Date.now())};break;
    case"draw-proj":var p={genre:pick(DECKS.genre.items),lieu:pick(DECKS.lieu.items),objet:pick(DECKS.objet.items)};S.projects[id]=p;S.draw={title:"Mission de réalisateur",who:id,items:[{l:"Genre",v:p.genre},{l:"Lieu",v:p.lieu},{l:"Objet",v:p.objet}],k:String(Date.now())};if(S.mode!=="tirage")S.mode="tirage";break;
    case"draw-clear":S.draw=null;break;
-   case"pairs":var ids=shuffle(S.students.map(function(x){return x.id}));S.guest=null;S.pairs=[];for(var j=0;j+1<ids.length;j+=2)S.pairs.push([ids[j],ids[j+1]]);if(ids.length%2&&S.pairs.length)S.pairs[S.pairs.length-1].push(ids[ids.length-1]);S.mode="seq";break;
+   case"pairs":var ids=shuffle(S.students.map(function(x){return x.id}));S.guest=null;S.pairs=[];for(var j=0;j+1<ids.length;j+=2)S.pairs.push({m:[ids[j],ids[j+1]]});if(ids.length%2&&S.pairs.length)S.pairs[S.pairs.length-1].m.push(ids[ids.length-1]);S.mode="seq";break;
    case"pairs-clear":S.pairs=[];S.guest=null;break;
    case"xp":s.xp+=+b.getAttribute("data-v");break;
    case"mer-draw":if(merList().length&&!armed.mer){arm("mer");return}delete armed.mer;var o=shuffle(S.students.map(function(x){return x.id})),ks=shuffle(MER.map(function(_,i){return i}));S.mer={a:o.map(function(id,i){return {id:id,k:ks[i%ks.length],to:o[(i+1)%o.length]}})};S.mode="mercredi";S.merp=1;break;
@@ -1155,7 +1156,7 @@ app.addEventListener("click",function(ev){
    case"draw-k":var dk=b.getAttribute("data-k");S.draw={title:DECKS[dk].n,who:null,items:[{l:DECKS[dk].n,v:pick(DECKS[dk].items)}],k:String(Date.now())};S.mode="seq";break;
    case"xp-free":var w=byId(val("xf-who")),n=Math.round(+val("xf-v")||0);if(!w||!n)return;w.xp+=n;toast(w.name+" : "+(n>0?"+":"")+n+" XP");break;
    case"use-card":s.cards.splice(+b.getAttribute("data-ci"),1);break;
-   case"rm":if(!armed["rm-"+id]){arm("rm-"+id);return}delete armed["rm-"+id];S.students=S.students.filter(function(x){return x.id!==id});S.pairs=S.pairs.filter(function(pp){return pp.indexOf(id)<0});if(S.guest===id)S.guest=null;delete S.projects[id];PRIZES.forEach(function(pz){if(S.prizes[pz[0]]===id)delete S.prizes[pz[0]]});break;
+   case"rm":if(!armed["rm-"+id]){arm("rm-"+id);return}delete armed["rm-"+id];S.students=S.students.filter(function(x){return x.id!==id});S.pairs=S.pairs.filter(function(pp){return grp(pp).indexOf(id)<0});if(S.guest===id)S.guest=null;delete S.projects[id];PRIZES.forEach(function(pz){if(S.prizes[pz[0]]===id)delete S.prizes[pz[0]]});break;
    case"add":var nm=val("new-name").trim();if(!nm){document.getElementById("new-name").focus();return}S.students.push({id:"e"+Date.now().toString(36),name:nm,xp:0,cards:[]});break;
    case"close-rank":if(!armed.close){arm("close");return}delete armed.close;var top=ranked()[0];if(!top)return;S.closed=true;top.cards.push("joker");break;
    case"reopen":S.closed=false;S.students.forEach(function(x){var ji=x.cards.indexOf("joker");if(ji>=0)x.cards.splice(ji,1)});break;
