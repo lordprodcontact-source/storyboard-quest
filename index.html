@@ -1000,8 +1000,8 @@ function tool(t,it){
   }
   else if(t==="projets"){
     h='<div class="tool"><h3>Tirage du projet final</h3><div class="list">';
-    S.students.forEach(function(s){var p=S.projects[s.id];h+='<div class="li"><span class="t">'+esc(s.name)+(p?' <small>'+esc(p.genre)+' · '+esc(p.lieu)+' · '+esc(p.objet)+'</small>':'')+'</span><button class="btn sm '+(p?'':'pri')+'" type="button" data-act="draw-proj" data-id="'+s.id+'">'+(p?'Retirer':'Tirer')+'</button></div>'});
-    h+='</div><p class="hint">Director\'s cut : change une contrainte dans l\'onglet Écran.</p></div>';
+    S.students.forEach(function(s){var p=S.projects[s.id];h+='<div class="li"><span class="t">'+esc(s.name)+(p?' <small>'+esc(p.genre)+' · '+esc(p.lieu)+' · '+esc(p.objet)+'</small>':'')+'</span><button class="btn sm '+(p?'':'pri')+'" type="button" data-act="draw-proj" data-id="'+s.id+'">'+(p?'Tirer à nouveau':'Tirer')+'</button>'+(p?'<button class="btn sm ghost" type="button" data-act="proj-clear" data-id="'+s.id+'">Annuler</button>':'')+'</div>'});
+    h+='</div>'+(Object.keys(S.projects).length?'<div class="row-btns" style="margin-top:8px"><button class="btn sm '+(armed.projreset?'armed':'ghost danger')+'" type="button" data-act="proj-reset">'+(armed.projreset?'Confirmer : effacer tous les tirages':'Réinitialiser tous les tirages')+'</button></div>':'')+'<p class="hint">Director\'s cut : change une contrainte dans l\'onglet Écran.</p></div>';
   }
   else if(t==="mercredi"){
     var L=merList();
@@ -1031,8 +1031,8 @@ function tEcran(){
   if(m==="seq"||m==="tirage"){
     h+='<section class="card"><h3>Tirages</h3><div class="row-btns">'+(S.draw?'<button class="btn ghost" type="button" data-act="draw-clear">Effacer</button>':'')+'</div>'+(S.draw?'<p class="hint">À l\'écran : '+S.draw.items.map(function(x){return esc(x.v)}).join(" · ")+'</p>':'')+
      '<h3>Projet final (jeudi)</h3><div class="list">';
-    S.students.forEach(function(s){var p=S.projects[s.id];h+='<div class="stu"><div class="stu-top"><b>'+esc(s.name)+'</b><button class="btn sm '+(p?'':'pri')+'" type="button" data-act="draw-proj" data-id="'+s.id+'">'+(p?'Retirer':'Tirer')+'</button></div>'+(p?'<div class="grid3">'+["genre","lieu","objet"].map(function(k){return '<select class="sel" aria-label="'+DECKS[k].n+'" data-pj="'+s.id+'" data-k="'+k+'">'+DECKS[k].items.map(function(v){return '<option'+(v===p[k]?' selected':'')+'>'+esc(v)+'</option>'}).join("")+'</select>'}).join("")+'</div>':'')+'</div>'});
-    h+='</div><p class="hint">Director\'s cut : change la contrainte dans le menu.</p></section>';
+    S.students.forEach(function(s){var p=S.projects[s.id];h+='<div class="stu"><div class="stu-top"><b>'+esc(s.name)+'</b><button class="btn sm '+(p?'':'pri')+'" type="button" data-act="draw-proj" data-id="'+s.id+'">'+(p?'Tirer à nouveau':'Tirer')+'</button>'+(p?'<button class="btn sm ghost" type="button" data-act="proj-clear" data-id="'+s.id+'">Annuler</button>':'')+'</div>'+(p?'<div class="grid3">'+["genre","lieu","objet"].map(function(k){return '<select class="sel" aria-label="'+DECKS[k].n+'" data-pj="'+s.id+'" data-k="'+k+'">'+DECKS[k].items.map(function(v){return '<option'+(v===p[k]?' selected':'')+'>'+esc(v)+'</option>'}).join("")+'</select>'}).join("")+'</div>':'')+'</div>'});
+    h+='</div>'+(Object.keys(S.projects).length?'<div class="row-btns" style="margin-top:8px"><button class="btn sm '+(armed.projreset?'armed':'ghost danger')+'" type="button" data-act="proj-reset">'+(armed.projreset?'Confirmer : effacer tous les tirages':'Réinitialiser tous les tirages')+'</button></div>':'')+'<p class="hint">Director\'s cut : change la contrainte dans le menu.</p></section>';
     h+='<section class="card"><h3>Binômes</h3><div class="row-btns"><button class="btn pri" type="button" data-act="pairs">Tirer les binômes</button>'+(S.pairs.length?'<button class="btn ghost" type="button" data-act="pairs-clear">Effacer</button>':'')+'</div></section>';
   }
   if(m==="flash"){
@@ -1220,6 +1220,8 @@ app.addEventListener("click",function(ev){
    case"draw-one":var k=b.getAttribute("data-k");S.draw={title:DECKS[k].n,who:null,items:[{l:DECKS[k].n,v:pick(DECKS[k].items)}],k:String(Date.now())};break;
    case"draw-proj":var p={genre:pick(DECKS.genre.items),lieu:pick(DECKS.lieu.items),objet:pick(DECKS.objet.items)};S.projects[id]=p;S.draw={title:"Mission de réalisateur",who:id,items:[{l:"Genre",v:p.genre},{l:"Lieu",v:p.lieu},{l:"Objet",v:p.objet}],k:String(Date.now())};if(S.mode!=="tirage")S.mode="tirage";break;
    case"draw-clear":S.draw=null;break;
+   case"proj-clear":delete S.projects[id];if(S.draw&&S.draw.who===id)S.draw=null;break;
+   case"proj-reset":if(!armed.projreset){arm("projreset");return}delete armed.projreset;S.projects={};S.draw=null;toast("Tirages effacés");break;
    case"pairs":var ids=shuffle(S.students.map(function(x){return x.id}));S.guest=null;S.pairs=[];for(var j=0;j+1<ids.length;j+=2)S.pairs.push({m:[ids[j],ids[j+1]]});if(ids.length%2&&S.pairs.length)S.pairs[S.pairs.length-1].m.push(ids[ids.length-1]);S.mode="seq";break;
    case"pairs-clear":S.pairs=[];S.guest=null;break;
    case"xp":s.xp+=+b.getAttribute("data-v");break;
