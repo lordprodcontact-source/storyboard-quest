@@ -563,7 +563,7 @@ var DECKS={
  objet:{n:"Objet",items:["Un parapluie rouge","Une valise","Une lettre","Un réveil","Une clé","Un téléphone qui sonne","Une plante verte","Un masque","Un ballon","Une photo déchirée"]}
 };
 var SUJETS=["un éléphant","un grand-père","un lion","un avion","une girafe","un robot","un astronaute","un chevalier","un cow-boy","un dinosaure","une voiture de course","une danseuse","un pirate","une sorcière","une vache","un policier","un chat","un footballeur"];
-var CARDS={coup:{n:"Coup de fil",full:"Coup de fil au producteur",d:"3 minutes de conseil en privé avec le producteur."},doublure:{n:"Doublure",full:"Doublure",d:"Un camarade de ton choix t'aide pendant 5 minutes."},director:{n:"Director's cut",full:"Director's cut",d:"Choisir une contrainte au lieu de la tirer au sort."},associe:{n:"Prod. associé",full:"Producteur associé",d:"XP doublés sur un défi, à annoncer avant de commencer."},joker:{n:"Joker",full:"Joker",d:"Choisir son ordre de passage à la projection et refaire une case de son projet."}};
+var CARDS={coup:{n:"Coup de fil",full:"Coup de fil au producteur",d:"3 minutes de conseil en privé avec le producteur."},doublure:{n:"Doublure",full:"Doublure",d:"Un camarade de ton choix t'aide pendant 5 minutes."},director:{n:"Director's cut",full:"Director's cut",d:"Choisir une contrainte au lieu de la tirer au sort."},associe:{n:"Prod. associé",full:"Producteur associé",d:"XP doublés sur un défi, à annoncer avant de commencer."},joker:{n:"Joker",full:"Joker",d:"Choisir son ordre de passage à la projection et refaire une case de son projet. Réservé au 1er du classement jeudi soir."}};
 var PRIZES=[["public","Prix du public","Pour avoir conquis la salle."],["producteur","Prix du producteur","Pour le film que le studio aurait voulu produire."],["audace","Prix de l'originalité","Pour l'idée ou le cadre que personne n'attendait."],["progression","Prix de la meilleure progression","Pour le plus beau chemin parcouru depuis lundi."]];
 var VALEURS=["Plan de grand ensemble (PGE)","Plan d'ensemble / large (PE)","Plan moyen (PM)","Plan américain (PA)","Plan rapproché taille (PR)","Plan rapproché poitrine (PR)","Gros plan (GP)","Très gros plan (TGP)"];
 var VDESC=["Le décor domine, le personnage est minuscule ou absent","Le personnage et le lieu : on comprend où il est","En pied, il remplit la hauteur du cadre","Coupé à mi-cuisses","Coupé à la taille","Coupé à la poitrine","Le visage","Un détail du visage : un œil, une bouche"];
@@ -751,7 +751,7 @@ function dec(d){if(d&&typeof d.j==="string"){try{return JSON.parse(d.j)}catch(e)
 function grp(p){return Array.isArray(p)?p:(p&&p.m)||[]}
 /* La consigne et la scène affichées viennent toujours du programme de la version chargée, jamais de la copie enregistrée au lancement. */
 function liveC(){var C=S.challenge;if(!C)return null;var it=itemAt(curIdx());if(!it||it.t!==C.title)return C;var o={};for(var k in C)o[k]=C[k];o.desc=it.d;o.sc=it.sc||null;o.xp=it.x;o.v=!!it.v;o.type=it.type||o.type;return o}
-var APP_VER="20261106090617";
+var APP_VER="20261106090710";
 function itemAt(c){return c&&PROGRAM[c.d+"-"+c.s]?PROGRAM[c.d+"-"+c.s][c.i]:null}
 function timed(it){return it&&(it.type==="defi"||it.type==="note"||it.type==="atelier")}
 var TYPES={info:"",pause:"Pause",defi:"Défi",atelier:"Atelier",note:"Noté"};
